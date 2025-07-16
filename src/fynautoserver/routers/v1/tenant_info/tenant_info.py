@@ -63,7 +63,7 @@ async def setTenantInfo(payload:TenantInfoModel):
             status_code=500,
         )
         
-@router.put("/updateTenantStep",response_model=ResponseModel)
+@router.patch("/updateTenantStep",response_model=ResponseModel)
 async def updateTenantStep(tenantId:str,step:int,steps:List[StepModel]):
     try:
         tenant= await update_tenant_step(tenantId, step, steps)
