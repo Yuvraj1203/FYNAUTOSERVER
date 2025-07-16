@@ -6,6 +6,7 @@ from fynautoserver.models.index import ResponseModel
 from fynautoserver.schemas.index import AddTenantSchema,StepModel
 from fastapi.encoders import jsonable_encoder
 from pymongo.errors import PyMongoError
+from typing import List
 
 app = FastAPI()
 
@@ -63,7 +64,7 @@ async def setTenantInfo(payload:TenantInfoModel):
         )
         
 @router.put("/updateTenantStep",response_model=ResponseModel)
-async def updateTenantStep(tenantId:str,step:int,steps:StepModel):
+async def updateTenantStep(tenantId:str,step:int,steps:List[StepModel]):
     try:
         tenant= await update_tenant_step(tenantId, step, steps)
         return create_response(success=True, result=tenant, status_code=201)

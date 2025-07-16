@@ -8,6 +8,7 @@ import httpx
 from fynautoserver.utils.index import zip_folder
 from fynautoserver.schemas.tenant_info_schema.add_tenant_schema import DEFAULT_STEPS
 from copy import deepcopy
+from typing import List
 
 async def add_tenant(payload:AddTenantModel):
         existing = await AddTenantSchema.find_one({"tenantId": payload.tenantId})
@@ -96,13 +97,15 @@ async def remove_tenant(tenantId: str):
     await tenant.delete()
     return {"message": "Tenant deleted successfully"}
 
-async def update_tenant_step(tenantId: str, step: int, steps: StepModel):
+async def update_tenant_step(tenantId: str, step: int, steps: List[StepModel]):
     try:
         existing_tennant = await AddTenantSchema.find_one({"tenantId": tenantId})
         if not existing_tennant:
             raise HTTPException(status_code=404, detail="Tenant not found")
-        existing_tennant.step = step
-        existing_tennant.steps = existing_tennant.steps or []
+        if step:
+            existing_tennant.step = step
+        if steps:
+            existing_tennant.steps=steps
         existing_tennant.save()
         return {"data":"Updated Successfully"}
     except Exception as e:
