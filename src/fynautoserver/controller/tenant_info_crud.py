@@ -1,7 +1,7 @@
 import json, os
 from fynautoserver.models.index import TenantInfoModel , AddTenantModel
 from fynautoserver.utils.index import create_response
-from fynautoserver.schemas.index import TenantInfoSchema, AddTenantSchema
+from fynautoserver.schemas.index import TenantInfoSchema, AddTenantSchema,StepModel
 from pathlib import Path
 from fastapi import  HTTPException
 import httpx
@@ -95,3 +95,16 @@ async def remove_tenant(tenantId: str):
 
     await tenant.delete()
     return {"message": "Tenant deleted successfully"}
+
+async def update_tenant_step(tenantId: str, step: int, steps: StepModel):
+    try:
+        existing_tennant = await AddTenantSchema.find_one({"tenantId": tenantId})
+        if not existing_tennant:
+            raise HTTPException(status_code=404, detail="Tenant not found")
+        existing_tennant.step = step
+        existing_tennant.steps = existing_tennant.steps or []
+        existing_tennant.save()
+        return {"data":"Updated Successfully"}
+    except Exception as e:
+        print(f"Error during updating tenant step: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update tenant step")

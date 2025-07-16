@@ -19,7 +19,7 @@ app.add_middleware(
 app.add_event_handler("startup",init_db)
 
 #Router
-app.include_router(router, prefix='/api')
+app.include_router(router, prefix='/api',tags=["tenants"])
 
 def main():
     uvicorn.run("fynautoserver.main:app", host="127.0.0.1", port=8000, reload=True)
