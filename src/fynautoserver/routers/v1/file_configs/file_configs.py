@@ -1,7 +1,7 @@
 from fastapi import FastAPI , APIRouter, UploadFile, File
 from typing import List
-from fynautoserver.controller.file_config_crud import files_upload
 from fynautoserver.utils.index import create_response
+from fynautoserver.crud.file_config_crud import files_upload
 
 app = FastAPI()
 

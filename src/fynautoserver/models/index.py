@@ -1,3 +1,4 @@
 from fynautoserver.models.tenant_info_model.tenant_info_model import TenantInfoModel
 from fynautoserver.models.tenant_info_model.add_tenant_model import AddTenantModel
 from fynautoserver.models.utils_models.response_model import ResponseModel
+from fynautoserver.models.color_step.color_step_schema import ThemeSchema,color_schema

@@ -16,7 +16,8 @@ dependencies = [
     "motor (>=3.7.1,<4.0.0)",
     "pymongo (>=4.13.1,<5.0.0)",
     "httpx (>=0.28.1,<0.29.0)",
-    "python-multipart (>=0.0.20,<0.0.21)"
+    "python-multipart (>=0.0.20,<0.0.21)",
+    "fonttools (>=4.58.5,<5.0.0)"
 ]
 
 [tool.poetry]

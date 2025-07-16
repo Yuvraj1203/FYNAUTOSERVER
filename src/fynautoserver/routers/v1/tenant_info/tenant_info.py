@@ -1,6 +1,6 @@
 from fastapi import APIRouter, FastAPI
 from fynautoserver.models.index import TenantInfoModel , AddTenantModel
-from fynautoserver.controller.tenant_info_crud import create_tenant_info , getTenantInfoByTenancyName, add_tenant, remove_tenant,update_tenant_step
+from fynautoserver.crud.tenant_info_crud import create_tenant_info , getTenantInfoByTenancyName, add_tenant, remove_tenant,update_tenant_step
 from fynautoserver.utils.index import create_response,APIExceptionHandler
 from fynautoserver.models.index import ResponseModel
 from fynautoserver.schemas.index import AddTenantSchema,StepModel
@@ -67,7 +67,7 @@ async def setTenantInfo(payload:TenantInfoModel):
 async def updateTenantStep(tenantId:str,step:int,steps:List[StepModel]):
     try:
         tenant= await update_tenant_step(tenantId, step, steps)
-        return create_response(success=True, result=tenant, status_code=201)
+        return create_response(success=True, result=tenant, status_code=200)
     except Exception as e:
         print(f"error during updating tenant step : {e}")
         return create_response(
