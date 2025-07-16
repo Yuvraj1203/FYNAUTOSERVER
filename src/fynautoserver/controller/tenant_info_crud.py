@@ -107,7 +107,7 @@ async def update_tenant_step(tenantId: str, step: int, steps: List[StepModel]):
         if steps:
             existing_tennant.steps=steps
         existing_tennant.save()
-        return {"data":"Updated Successfully"}
+        return {"message":"Updated Successfully"}
     except Exception as e:
         print(f"Error during updating tenant step: {e}")
         raise HTTPException(status_code=500, detail="Failed to update tenant step")
