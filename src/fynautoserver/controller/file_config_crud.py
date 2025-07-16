@@ -2,10 +2,9 @@ from fastapi import FastAPI , APIRouter, UploadFile, File
 from typing import List
 import os
 
-UPLOAD_DIR = f"src/tenant"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-
-async def files_upload(files: List[UploadFile] = File(...)):
+async def files_upload(tenantId:str, tenancyName:str,files: List[UploadFile] = File(...)):
+    UPLOAD_DIR = f"src/tenant/tenants/{tenancyName}"
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
     try:
         saved = []
         for file in files:
@@ -15,6 +14,6 @@ async def files_upload(files: List[UploadFile] = File(...)):
             with open(file_path, "wb") as f:
                 f.write(contents)
             saved.append(file.filename)
-        return {"uploaded": saved}
+        return {"uploaded": saved,'message':'file uploaded successfully'}
     except Exception as e:
         print(f'error on file_upload {e}')
