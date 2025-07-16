@@ -30,7 +30,7 @@ class AddTenantSchema(Document):
     isOktaEnabled: bool
     allowCommunityTemplateCreation: bool
     status: str
-    step : int = Field(default=0)
+    step : int = Field(default=1)
     steps : List[StepModel]
 
     class Settings:

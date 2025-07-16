@@ -107,8 +107,10 @@ async def update_tenant_step(tenantId: str, step: int, steps: List[StepModel]):
         if steps:
             existing_tennant.steps=steps
         await existing_tennant.save()
-        updatedTenant = await AddTenantSchema.find_one({"tenantId": tenantId})
-        return {'data' : updatedTenant.model_dump_json()}
+        updatedTenantTemp = await AddTenantSchema.find_one({"tenantId": tenantId})
+        updatedTenant = updatedTenantTemp.model_dump()
+        updatedTenant["id"] = str(updatedTenant["id"])
+        return updatedTenant
     except Exception as e:
         print(f"Error during updating tenant step: {e}")
         raise HTTPException(status_code=500, detail="Failed to update tenant step")

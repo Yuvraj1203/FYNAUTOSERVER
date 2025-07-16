@@ -21,5 +21,5 @@ class AddTenantModel(BaseModel):
     isOktaEnabled: bool
     allowCommunityTemplateCreation: bool
     status: str
-    step: Optional[int] = Field(default=0)
+    step: Optional[int] = Field(default=1)
     steps: Optional[List[StepModel]] = None
