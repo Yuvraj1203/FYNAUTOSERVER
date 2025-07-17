@@ -8,5 +8,5 @@ router_v1 = APIRouter()
 
 router_v1.include_router(tenant_info_router,prefix='/tenantInfo')
 router_v1.include_router(file_configs_router,prefix='/fileConfigs')
-router_v1.include_router(fonts_router,prefix='/fonts_upload')
-router_v1.include_router(color_router,prefix="/color_step")
+router_v1.include_router(fonts_router,prefix='/fontsUpload')
+router_v1.include_router(color_router,prefix="/colorStep")

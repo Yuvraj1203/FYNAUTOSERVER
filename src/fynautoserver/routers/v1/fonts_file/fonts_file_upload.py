@@ -11,8 +11,8 @@ from uuid import uuid4
 
 fonts_router=APIRouter()
 
-@fonts_router.post("/create_fonts",response_model=ResponseModel)
-async def create_fonts(Tenantid: str,tenancyname:str,files: List[UploadFile] = File(...)):
+@fonts_router.post("/createFonts",response_model=ResponseModel)
+async def create_fonts(tenantId:str,tenancyName:str,files: List[UploadFile] = File(...)):
     try:
         public_urls = []
 
@@ -33,10 +33,10 @@ async def create_fonts(Tenantid: str,tenancyname:str,files: List[UploadFile] = F
             with open(save_path, "wb") as buffer:
                 buffer.write(contents)
 
-            public_urls.append(f"/upload/{new_filename}")
+            public_urls.append(f"src/tenant/tenants/{tenancyName}/assets/fonts")
 
         # Insert into DB
-        data = await create_fonts_db(Tenantid,tenancyname,public_urls)
+        data = await create_fonts_db(tenantId,tenancyName,public_urls)
         return create_response(success=True, result=data, status_code=200)
 
     except Exception as e:
@@ -47,4 +47,3 @@ async def create_fonts(Tenantid: str,tenancyname:str,files: List[UploadFile] = F
             error_detail=str(e),
             status_code=500
         )
-    
