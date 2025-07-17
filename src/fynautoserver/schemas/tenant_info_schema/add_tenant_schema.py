@@ -1,7 +1,7 @@
 from enum import Enum
 from pydantic import BaseModel , Field
 from typing import List
-from beanie import Document
+from beanie import Document,Insert, Replace,before_event,Update
 
 class TenantStatusEnum(str, Enum):
     pending = "Pending"
@@ -35,3 +35,17 @@ class AddTenantSchema(Document):
 
     class Settings:
         name = 'tenant_details'
+
+    @before_event(Insert)
+    @before_event(Replace)
+    @before_event(Update)
+    async def set_status_from_steps(self):
+        print("in status update")
+        completed_steps = sum(1 for s in self.steps if s.status == "Completed")
+
+        if completed_steps == 0:
+            self.status = "Pending"
+        elif completed_steps < 5:
+            self.status = "On-Going"
+        else:
+            self.status = "Completed"

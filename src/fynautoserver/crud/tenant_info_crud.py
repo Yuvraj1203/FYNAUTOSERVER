@@ -106,6 +106,7 @@ async def update_tenant_step(tenantId: str, step: int, steps: List[StepModel]):
             existing_tennant.step = step
         if steps:
             existing_tennant.steps=steps
+        await existing_tennant.set_status_from_steps() 
         await existing_tennant.save()
         updatedTenantTemp = await AddTenantSchema.find_one({"tenantId": tenantId})
         updatedTenant = updatedTenantTemp.model_dump()
