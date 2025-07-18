@@ -40,7 +40,6 @@ class AddTenantSchema(Document):
     @before_event(Replace)
     @before_event(Update)
     async def set_status_from_steps(self):
-        print("in status update")
         completed_steps = sum(1 for s in self.steps if s.status == "Completed")
 
         if completed_steps == 0:
