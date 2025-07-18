@@ -1,5 +1,8 @@
 from fynautoserver.models.index import ThemeSchema
 from fynautoserver.schemas.index import Color
+from fynautoserver.path_config import SRC_DIR
+import os
+import json
 
 async def create_colors_db(tenantId:str,tenancyName:str,theme:ThemeSchema):        
     existing = await Color.find_one({"tenantId": tenantId})
