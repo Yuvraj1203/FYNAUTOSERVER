@@ -173,18 +173,6 @@ async def generate_icons_crud(
     with open(notification_icon_temp_path, "wb") as buffer:
         shutil.copyfileobj(notification_icon.file, buffer)
 
-    #for setting folder for IOS
-    source_folder = f"./src/tenant/mandatory_files/Images.xcassets"
-    destination_folder = f"./src/tenant/tenants/{tenancyName}/Images.xcassets"
-
-    shutil.copytree(source_folder, destination_folder,dirs_exist_ok=True)
-
-    #for setting folder for Android
-    source_folder_Android = f"./src/tenant/mandatory_files/res"
-    destination_folder_Android = f"./src/tenant/tenants/{tenancyName}/res"
-
-    shutil.copytree(source_folder_Android, destination_folder_Android,dirs_exist_ok=True)
-
     try:
         # Generate icons as before
         generate_icons(

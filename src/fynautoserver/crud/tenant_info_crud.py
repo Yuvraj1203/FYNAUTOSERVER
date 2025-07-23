@@ -23,8 +23,8 @@ async def add_tenant(payload:AddTenantModel):
             await tenant_details.insert()
                 #for setting assets folder to tenat
 
-            source_folder_Assets = f"./src/tenant/mandatory_files/assets"
-            destination_folder_Assets = f"./src/tenant/tenants/{payload.tenancyName}/assets"
+            source_folder_Assets = f"./src/tenant/mandatory_files"
+            destination_folder_Assets = f"./src/tenant/tenants/{payload.tenancyName}"
             shutil.copytree(source_folder_Assets, destination_folder_Assets,dirs_exist_ok=True)
 
             return {"message": "Tenant Added Successfully"}
