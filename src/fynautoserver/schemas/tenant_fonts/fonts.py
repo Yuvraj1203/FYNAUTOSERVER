@@ -4,6 +4,8 @@ from typing import Optional,List
 class Fonts(Document):
     tenantId: str
     tenancyName:str
-    font_file_path:Optional[List[str]]=[]
+    lightFontPath:Optional[str]=None
+    regularFontPath:Optional[str]=None
+    boldFontPath:Optional[str]=None
     class Settings:
         name = 'Fonts'
