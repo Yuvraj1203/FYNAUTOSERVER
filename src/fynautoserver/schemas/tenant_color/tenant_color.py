@@ -7,5 +7,6 @@ class Color(Document):
     tenancyName:str
     light:Optional[color_schema]=None
     dark:Optional[color_schema]=None
+    filePath:Optional[str]=None
     class Settings:
         name = 'Colors'
