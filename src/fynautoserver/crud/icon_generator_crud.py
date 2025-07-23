@@ -2,6 +2,7 @@ import shutil
 import os
 from fastapi import APIRouter, HTTPException, UploadFile, File
 from PIL import Image, ImageDraw
+from fynautoserver.path_config import SRC_DIR
 
 IOS_ICON_SIZES = [
     (20, "Icon-App-20x20@1x.png"),
@@ -143,14 +144,32 @@ async def generate_icons_crud(
     tenantId:str,
     tenancyName:str,
     app_icon: UploadFile = File(...),
-    notification_icon: UploadFile = File(...)
+    notification_icon: UploadFile = File(...),
+    app_banner: UploadFile = File(...)
     ):
+    images_folder = f"tenant/tenants/{tenancyName}/assets/images"
+    save_path = os.path.join(SRC_DIR, images_folder)
+    # Ensure the target folder exists
+    os.makedirs(save_path, exist_ok=True)
+
+    app_icon_bytes = await app_icon.read()  # Read file only once
+
+    # Save app_icon
+    app_icon_path = os.path.join(save_path, "appIcon.png")
+    with open(app_icon_path, "wb") as f:
+        f.write(app_icon_bytes)
+    
+    # Save banner_icon
+    app_banner_path = os.path.join(save_path, "appBanner.png")
+    with open(app_banner_path, "wb") as buffer:
+        shutil.copyfileobj(app_banner.file, buffer)
+
     # Temporary save uploads
     app_icon_temp_path = 'temp_app_icon.png'
     notification_icon_temp_path = 'temp_notification_icon.png'
 
-    with open(app_icon_temp_path, "wb") as buffer:
-        shutil.copyfileobj(app_icon.file, buffer)
+    with open(app_icon_temp_path, "wb") as f:
+        f.write(app_icon_bytes)
     with open(notification_icon_temp_path, "wb") as buffer:
         shutil.copyfileobj(notification_icon.file, buffer)
 

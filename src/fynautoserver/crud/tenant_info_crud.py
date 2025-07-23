@@ -9,6 +9,7 @@ from fynautoserver.utils.index import zip_folder
 from fynautoserver.schemas.tenant_info_schema.add_tenant_schema import DEFAULT_STEPS
 from copy import deepcopy
 from typing import List
+import shutil
 
 async def add_tenant(payload:AddTenantModel):
         existing = await AddTenantSchema.find_one({"tenantId": payload.tenantId})
@@ -20,6 +21,12 @@ async def add_tenant(payload:AddTenantModel):
 
             tenant_details = AddTenantSchema(**payload_with_steps)
             await tenant_details.insert()
+                #for setting assets folder to tenat
+
+            source_folder_Assets = f"./src/tenant/mandatory_files/assets"
+            destination_folder_Assets = f"./src/tenant/tenants/{payload.tenancyName}/assets"
+            shutil.copytree(source_folder_Assets, destination_folder_Assets,dirs_exist_ok=True)
+
             return {"message": "Tenant Added Successfully"}
     # try:
 

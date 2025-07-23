@@ -12,7 +12,11 @@ from uuid import uuid4
 fonts_router=APIRouter()
 
 @fonts_router.post("/createFonts",response_model=ResponseModel)
-async def create_fonts(tenantId:str,tenancyName:str,files: List[UploadFile] = File(...)):
+async def create_fonts(tenantId:str,tenancyName:str,files: List[UploadFile] = File(...),
+                        lightFont: UploadFile = File(...),
+                        regularFont: UploadFile = File(...),
+                        boldFont: UploadFile = File(...)
+                       ):
     try:
         public_urls = []
 
