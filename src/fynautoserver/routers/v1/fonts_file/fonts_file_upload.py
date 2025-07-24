@@ -8,14 +8,15 @@ from fynautoserver.path_config import SRC_DIR
 from fynautoserver.crud.fonts_crud import create_fonts_db,update_index_tsx
 import os
 from fynautoserver.schemas.index import Fonts
+from typing import Optional
 
 fonts_router=APIRouter()
 
 @fonts_router.post("/createFonts",response_model=ResponseModel)
 async def create_fonts(tenantId:str,tenancyName:str,
-                        lightFont: UploadFile = File(...),
-                        regularFont: UploadFile = File(...),
-                        boldFont: UploadFile = File(...)
+                        lightFont: Optional[UploadFile] = File(None),
+                        regularFont: Optional[UploadFile] = File(None),
+                        boldFont: Optional[UploadFile] = File(None)
                        ):
     try:
 
