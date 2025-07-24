@@ -1,7 +1,7 @@
 import json, os
 from fynautoserver.models.index import TenantInfoModel , AddTenantModel
 from fynautoserver.utils.index import create_response
-from fynautoserver.schemas.index import TenantInfoSchema, AddTenantSchema,StepModel
+from fynautoserver.schemas.index import TenantInfoSchema, AddTenantSchema,StepModel, Fonts, Color
 from pathlib import Path
 from fastapi import  HTTPException
 import httpx
@@ -10,6 +10,7 @@ from fynautoserver.schemas.tenant_info_schema.add_tenant_schema import DEFAULT_S
 from copy import deepcopy
 from typing import List
 import shutil
+from fynautoserver.path_config import SRC_DIR
 
 async def add_tenant(payload:AddTenantModel):
         existing = await AddTenantSchema.find_one({"tenantId": payload.tenantId})
@@ -26,6 +27,19 @@ async def add_tenant(payload:AddTenantModel):
             source_folder_Assets = f"./src/tenant/mandatory_files"
             destination_folder_Assets = f"./src/tenant/tenants/{payload.tenancyName}"
             shutil.copytree(source_folder_Assets, destination_folder_Assets,dirs_exist_ok=True)
+
+            font_light_folder = f"tenant/tenants/{payload.tenancyName}/assets/fonts/AppFont/Quicksand-Light.ttf"
+            font_regular_folder = f"tenant/tenants/{payload.tenancyName}/assets/fonts/AppFont/Quicksand-SemiBold.ttf"
+            font_bold_folder = f"tenant/tenants/{payload.tenancyName}/assets/fonts/AppFont/Quicksand-Bold.ttf"
+            #create
+            fonts=Fonts(
+                tenantId=payload.tenantId,
+                tenancyName=payload.tenancyName,
+                lightFontPath=font_light_folder or None,
+                regularFontPath=font_regular_folder or None,
+                boldFontPath=font_bold_folder or None
+                )
+            await fonts.insert()
 
             return {"message": "Tenant Added Successfully"}
     # try:
@@ -96,12 +110,25 @@ async def getTenantInfoByTenancyName(tenancyName : str):
         raise HTTPException(status_code=500, detail="Something went wrong")
     
 
-async def remove_tenant(tenantId: str):
+async def remove_tenant(tenantId: str,tenancyName:str):
     tenant = await AddTenantSchema.find_one({"tenantId": tenantId})
+    color_db = await Color.find_one({"tenantId": tenantId})
+    font_db = await Fonts.find_one({"tenantId": tenantId})
+    tenant_info_db = await TenantInfoSchema.find_one({"tenantId": tenantId})
     if not tenant:
         raise HTTPException(status_code=404, detail="Tenant not found")
 
     await tenant.delete()
+    if color_db:
+        await color_db.delete()
+    if font_db:
+        await font_db.delete()
+    if tenant_info_db:
+        await tenant_info_db.delete()
+
+    folder_path = f"src/tenant/tenants/{tenancyName}"
+    if os.path.exists(folder_path):
+        shutil.rmtree(folder_path)
     return {"message": "Tenant deleted successfully"}
 
 async def update_tenant_step(tenantId: str, step: int, steps: List[StepModel]):

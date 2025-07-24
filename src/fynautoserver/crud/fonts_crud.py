@@ -55,13 +55,26 @@ def update_index_tsx(font_filename: str, tenancyName: str, role: str):
 
 
 async def create_fonts_db(tenantId:str,tenancyName:str,lightFontPath:Optional[str]=None,regularFontPath:Optional[str]=None,boldFontPath:Optional[str]=None):
-    fonts=Fonts(
-        tenantId=tenantId or None,
-        tenancyName=tenancyName or None,
-        lightFontPath=lightFontPath or None,
-        regularFontPath=regularFontPath or None,
-        boldFontPath=boldFontPath or None
-        )
-    await fonts.insert()
-    return {"message":'Fonts File Uploaded Successfully'}
+    existing =Fonts.find_one({"tenantId":tenantId})
+    if not existing:
+        fonts=Fonts(
+            tenantId=tenantId or None,
+            tenancyName=tenancyName or None,
+            lightFontPath=lightFontPath or None,
+            regularFontPath=regularFontPath or None,
+            boldFontPath=boldFontPath or None
+            )
+        await fonts.insert()
+        return {"message":'Fonts File Uploaded Successfully'}
+    else:
+        if lightFontPath:
+            existing.lightFontPath = lightFontPath
+            await existing.save()
+        if regularFontPath:
+            existing.regularFontPath = regularFontPath
+            await existing.save()
+        if boldFontPath:
+            existing.boldFontPath = boldFontPath
+            await existing.save()
+        return {"message":'Fonts File Uploaded Successfully'}
 

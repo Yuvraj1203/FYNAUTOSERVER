@@ -40,8 +40,8 @@ async def getAllTenants():
     return create_response(success=True, result=json_safe, status_code=201)
 
 @router.delete('/removeTenant',response_model=ResponseModel)
-async def removeTenant(tenantId: str):
-    response = await remove_tenant(tenantId)
+async def removeTenant(tenantId: str,tenancyName: str):
+    response = await remove_tenant(tenantId,tenancyName)
     return create_response(success=True, result=response, status_code=201)
 
 @router.post('/addTenant',response_model=ResponseModel)

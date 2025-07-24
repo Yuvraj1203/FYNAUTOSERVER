@@ -121,7 +121,7 @@ async def create_fonts(tenantId:str,tenancyName:str,
                 update_index_tsx(boldFont.filename, tenancyName,"Bold")
 
 
-            return create_response(success=True,result="Font Path Updated Successfully",status_code=200)
+            return create_response(success=True,result={'message':"Font Path Updated Successfully"},status_code=200)
         else:
             if lightFont:
                 contents = await lightFont.read()  # await only once here
