@@ -1,6 +1,6 @@
 from fastapi import APIRouter, FastAPI
 from fynautoserver.models.index import TenantInfoModel , AddTenantModel
-from fynautoserver.crud.tenant_info_crud import create_tenant_info , getTenantInfoByTenancyName, add_tenant, remove_tenant,update_tenant_step
+from fynautoserver.crud.tenant_info_crud import create_tenant_info , getTenantInfoByTenancyName, add_tenant, remove_tenant,update_tenant_step, fetch_form_data
 from fynautoserver.utils.index import create_response,APIExceptionHandler
 from fynautoserver.models.index import ResponseModel
 from fynautoserver.schemas.index import AddTenantSchema,StepModel
@@ -59,6 +59,19 @@ async def setTenantInfo(payload:TenantInfoModel):
         return create_response(
             success=False,
             error_message="Failed to create tenant. Please try again.",
+            error_detail=str(e),
+            status_code=500,
+        )
+
+@router.get('/getTenantFromData',response_model=ResponseModel)
+async def getTenantFromData(tenantId:str):
+    try:
+        formData = await fetch_form_data(tenantId)
+        return create_response(success=True, result=formData, status_code=201)
+    except Exception as e:
+        return create_response(
+            success=False,
+            error_message="Failed to fetch form data. Please try again.",
             error_detail=str(e),
             status_code=500,
         )

@@ -22,7 +22,7 @@ app.add_event_handler("startup",init_db)
 app.include_router(router, prefix='/api',tags=["tenants"])
 
 def main():
-    uvicorn.run("fynautoserver.main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("fynautoserver.main:app", host="0.0.0.0", port=8000, reload=True)
  
 # For standalone runs (optional)
 if __name__ == "__main__":

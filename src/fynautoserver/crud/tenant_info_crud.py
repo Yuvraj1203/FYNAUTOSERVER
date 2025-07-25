@@ -48,7 +48,7 @@ async def add_tenant(payload:AddTenantModel):
     #     print(f'error from add_tenant due to : {e}')
 
 async def create_tenant_folder(payload:TenantInfoModel):
-    name_no_spaces = payload.TenancyName.replace(" ", "")
+    name_no_spaces = payload.tenancyName.replace(" ", "")
     folder_path = Path(f"./src/tenant/tenants/{name_no_spaces}")
     zip_folder_path = Path(f"src/tenant/tenant_zip/{name_no_spaces}.zip")
 
@@ -75,7 +75,7 @@ async def create_tenant_folder(payload:TenantInfoModel):
 
 async def create_tenant_info(payload:TenantInfoModel):
     try:
-        existing = await TenantInfoSchema.find_one(TenantInfoSchema.TenantId == payload.TenantId)
+        existing = await TenantInfoSchema.find_one(TenantInfoSchema.tenantId == payload.tenantId)
 
         if existing:
         # Update existing fields with new data
@@ -85,12 +85,14 @@ async def create_tenant_info(payload:TenantInfoModel):
             data = existing.model_dump()
             data["id"] = str(existing.id)
             await create_tenant_folder(payload)
-            return {"message": "Tenant Info Updated"}
+            return {"message": "Tenant Info Updated",'tenantFormData':data}
         else:
             tenant_info = TenantInfoSchema(**payload.model_dump())
-            await tenant_info.insert()
+            response = await tenant_info.insert()
+            response = response.model_dump()
+            response["id"]=str(response["id"])
             await create_tenant_folder(payload)
-            return {"message": "Tenant Info Inserted"}
+            return {"message": "Tenant Info Inserted",'tenantFormData':response}
 
 
     except Exception as e:
@@ -149,3 +151,12 @@ async def update_tenant_step(tenantId: str, step: int, steps: List[StepModel]):
     except Exception as e:
         print(f"Error during updating tenant step: {e}")
         raise HTTPException(status_code=500, detail="Failed to update tenant step")
+    
+async def fetch_form_data(tenantId:str):
+    existing = await TenantInfoSchema.find_one({'tenantId':tenantId})
+    if existing:
+        existing = existing.model_dump()
+        existing['id'] = str(existing['id'])
+        return {"message":'form data fetched successfully','tenantFormData':existing}
+    else:
+        return {"message":'no tenant form data found','tenantFormData':existing}

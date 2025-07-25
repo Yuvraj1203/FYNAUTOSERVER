@@ -2,18 +2,18 @@ from beanie import Document
 from typing import Optional
 
 class TenantInfoSchema(Document):
-    ApiUrl: str
-    AppName: str
-    Auth0ClientId: str
-    Auth0Domain: str
-    Auth0Organization: Optional[str] = None
-    BundleId: str
-    OktaClientId: Optional[str] = None
-    OktaDomain: Optional[str] = None
-    PackageName: str
-    SentryDsn: str
-    TenancyName: str
-    TenantId: int
+    apiUrl: str
+    appName: str
+    auth0ClientId: str
+    auth0Domain: str
+    auth0Organization: Optional[str] = None
+    bundleId: str
+    oktaClientId: Optional[str] = None
+    oktaDomain: Optional[str] = None
+    packageName: str
+    sentryDsn: str
+    tenancyName: str
+    tenantId: str
 
     class Settings:
         name = 'tenant_info'
