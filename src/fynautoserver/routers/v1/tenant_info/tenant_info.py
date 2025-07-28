@@ -63,10 +63,10 @@ async def setTenantInfo(payload:TenantInfoModel):
             status_code=500,
         )
 
-@router.get('/getTenantFromData',response_model=ResponseModel)
-async def getTenantFromData(tenantId:str):
+@router.get('/getTenantFormData',response_model=ResponseModel)
+async def getTenantFormData(tenantId:str,tenancyName:str):
     try:
-        formData = await fetch_form_data(tenantId)
+        formData = await fetch_form_data(tenantId,tenancyName)
         return create_response(success=True, result=formData, status_code=201)
     except Exception as e:
         return create_response(

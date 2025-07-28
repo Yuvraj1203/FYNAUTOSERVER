@@ -27,8 +27,8 @@ async def create_colors_db(tenantId: str, tenancyName: str, theme: ThemeSchema):
             os.makedirs(save_path,exist_ok=True)
             with open(index_ts_path, "w", encoding="utf-8") as f:
                 f.write(index_ts_content)
-
-        return {"message": "Colors Inserted Successfully"}
+        existing.id = str(existing.id)
+        return {"message": "Colors Inserted Successfully",'themeColors': existing}
     else:
         os.makedirs(save_path, exist_ok=True)
         with open(index_ts_path, "w", encoding="utf-8") as f:
@@ -41,4 +41,10 @@ async def create_colors_db(tenantId: str, tenancyName: str, theme: ThemeSchema):
             dark=theme.dark or None,
         )
         await colors.insert()
-        return {"message": "Colors Inserted Successfully"}
+        colors.id = str(colors.id)
+        return {"message": "Colors Inserted Successfully", 'themeColors':colors}
+    
+async def get_theme_Colors(tenantId: str):
+    existing = await Color.find_one({"tenantId": tenantId})
+    existing['id'] = str(existing['id'])
+    return {"message": "Colors fetched Successfully", 'themeColors':existing}

@@ -11,6 +11,8 @@ from copy import deepcopy
 from typing import List
 import shutil
 from fynautoserver.path_config import SRC_DIR
+from fynautoserver.crud.file_config_crud import get_congif_files
+from fynautoserver.crud.colors_crud import get_theme_Colors
 
 async def add_tenant(payload:AddTenantModel):
         existing = await AddTenantSchema.find_one({"tenantId": payload.tenantId})
@@ -152,11 +154,13 @@ async def update_tenant_step(tenantId: str, step: int, steps: List[StepModel]):
         print(f"Error during updating tenant step: {e}")
         raise HTTPException(status_code=500, detail="Failed to update tenant step")
     
-async def fetch_form_data(tenantId:str):
+async def fetch_form_data(tenantId:str,tenancyName:str):
     existing = await TenantInfoSchema.find_one({'tenantId':tenantId})
     if existing:
         existing = existing.model_dump()
         existing['id'] = str(existing['id'])
-        return {"message":'form data fetched successfully','tenantFormData':existing}
+        files_config = await get_congif_files(tenancyName)
+        theme_colors = get_theme_Colors(tenantId)
+        return {"message":'form data fetched successfully','tenantFormData':existing,'fileConfigsData':files_config,'themeColors':theme_colors}
     else:
         return {"message":'no tenant form data found','tenantFormData':existing}
