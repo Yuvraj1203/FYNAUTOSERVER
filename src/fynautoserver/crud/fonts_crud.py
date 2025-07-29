@@ -54,18 +54,21 @@ def update_index_tsx(font_filename: str, tenancyName: str, role: str):
     print(f"✅ Updated '{role}' font to '{font_name}' in index.tsx")
 
 
-async def create_fonts_db(tenantId:str,tenancyName:str,lightFontPath:Optional[str]=None,regularFontPath:Optional[str]=None,boldFontPath:Optional[str]=None):
+async def create_fonts_db(tenantId:str,tenancyName:str,defaultFontName:str,lightFontPath:Optional[str]=None,regularFontPath:Optional[str]=None,boldFontPath:Optional[str]=None):
     existing =Fonts.find_one({"tenantId":tenantId})
     if not existing:
         fonts=Fonts(
             tenantId=tenantId or None,
             tenancyName=tenancyName or None,
+            defaultFontName = defaultFontName or None,
             lightFontPath=lightFontPath or None,
             regularFontPath=regularFontPath or None,
             boldFontPath=boldFontPath or None
             )
         await fonts.insert()
-        return {"message":'Fonts File Uploaded Successfully'}
+        response = fonts.model_dump()
+        response['id'] = str(response['id'])
+        return {"message":'Fonts File Uploaded Successfully','fontsData':response}
     else:
         if lightFontPath:
             existing.lightFontPath = lightFontPath
@@ -76,5 +79,7 @@ async def create_fonts_db(tenantId:str,tenancyName:str,lightFontPath:Optional[st
         if boldFontPath:
             existing.boldFontPath = boldFontPath
             await existing.save()
-        return {"message":'Fonts File Uploaded Successfully'}
+        response = existing.model_dump()
+        response['id'] = str(response['id'])
+        return {"message":'Fonts File Uploaded Successfully','fontsData':response}
 
