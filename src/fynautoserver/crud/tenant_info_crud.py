@@ -155,12 +155,13 @@ async def update_tenant_step(tenantId: str, step: int, steps: List[StepModel]):
         raise HTTPException(status_code=500, detail="Failed to update tenant step")
     
 async def fetch_form_data(tenantId:str,tenancyName:str):
+    tenantDetails = await AddTenantSchema.find_one({'tenantId':tenantId})
     existing = await TenantInfoSchema.find_one({'tenantId':tenantId})
     if existing:
         existing = existing.model_dump()
         existing['id'] = str(existing['id'])
         files_config = await get_congif_files(tenancyName)
-        theme_colors = get_theme_Colors(tenantId)
-        return {"message":'form data fetched successfully','tenantFormData':existing,'fileConfigsData':files_config,'themeColors':theme_colors}
+        theme_colors = await get_theme_Colors(tenantId)
+        return {"message":'form data fetched successfully','id':tenantDetails.tenantId,'tenantFormData':existing,'fileConfigsData':files_config,'themeColors':theme_colors}
     else:
         return {"message":'no tenant form data found','tenantFormData':existing}

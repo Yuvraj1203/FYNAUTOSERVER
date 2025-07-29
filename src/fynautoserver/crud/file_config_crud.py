@@ -46,12 +46,13 @@ async def get_congif_files(tenancyName:str):
     firebaseFile = find_firebase_adminsdk_file(base_path)
 
     if not any([dotplistFile, dotjsonFile, firebaseFile]):
-        return {'message':'No files Found'}
+        return {'message':'No files Found','success': False,}
 
     response_data = {
         "googleServiceInfoPlist": read_file_base64(dotplistFile) if dotplistFile else None,
         "googleServicesJson": read_file_base64(dotjsonFile) if dotjsonFile else None,
         "firebaseAdminsdkJson": read_file_base64(firebaseFile) if firebaseFile else None,
+        'success': True,
     }
 
     return response_data

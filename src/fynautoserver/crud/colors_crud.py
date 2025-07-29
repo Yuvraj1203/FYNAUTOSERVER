@@ -46,5 +46,8 @@ async def create_colors_db(tenantId: str, tenancyName: str, theme: ThemeSchema):
     
 async def get_theme_Colors(tenantId: str):
     existing = await Color.find_one({"tenantId": tenantId})
-    existing['id'] = str(existing['id'])
-    return {"message": "Colors fetched Successfully", 'themeColors':existing}
+    if existing:
+        existing.id = str(existing.id)
+        return existing
+    else:
+        return {"message": "No colors collection found!"}
