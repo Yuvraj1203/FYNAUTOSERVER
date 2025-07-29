@@ -55,7 +55,7 @@ def update_index_tsx(font_filename: str, tenancyName: str, role: str):
 
 
 async def create_fonts_db(tenantId:str,tenancyName:str,defaultFontName:str,lightFontPath:Optional[str]=None,regularFontPath:Optional[str]=None,boldFontPath:Optional[str]=None):
-    existing =Fonts.find_one({"tenantId":tenantId})
+    existing = await Fonts.find_one({"tenantId":tenantId})
     if not existing:
         fonts=Fonts(
             tenantId=tenantId or None,
@@ -82,4 +82,15 @@ async def create_fonts_db(tenantId:str,tenancyName:str,defaultFontName:str,light
         response = existing.model_dump()
         response['id'] = str(response['id'])
         return {"message":'Fonts File Uploaded Successfully','fontsData':response}
+    
+
+async def get_fonts_data(tenantId:str,tenancyName:str):
+    existing = await Fonts.find_one({"tenantId":tenantId})
+
+    if existing:
+        response = existing.model_dump()
+        response['id'] = str(response['id'])
+        return {"message":'Fonts fetched Successfully','fontsData':response}
+    else:
+        return {"message":'no fonts found'}
 

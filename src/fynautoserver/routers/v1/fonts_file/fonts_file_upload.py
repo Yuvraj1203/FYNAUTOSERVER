@@ -5,7 +5,7 @@ from typing import List
 from fontTools.ttLib import TTFont
 from io import BytesIO
 from fynautoserver.path_config import SRC_DIR
-from fynautoserver.crud.fonts_crud import create_fonts_db,update_index_tsx
+from fynautoserver.crud.fonts_crud import create_fonts_db,update_index_tsx, get_fonts_data
 import os, shutil
 from fynautoserver.schemas.index import Fonts
 from typing import Optional
@@ -250,3 +250,9 @@ async def create_fonts(
             error_detail=str(e),
             status_code=500
         )
+
+
+@fonts_router.get('/getFontsData',response_model=ResponseModel)
+async def getFontsData(tenantId:str,tenancyName:str):
+    data = await get_fonts_data(tenantId,tenancyName)
+    return create_response(success=True, result=data, status_code=200)
