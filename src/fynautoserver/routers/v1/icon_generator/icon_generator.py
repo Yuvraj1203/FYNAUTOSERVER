@@ -2,6 +2,9 @@ from fastapi import APIRouter, UploadFile, File
 from fynautoserver.models.index import ResponseModel
 from fynautoserver.crud.icon_generator_crud import generate_icons_crud
 from fynautoserver.utils.index import create_response
+import os
+from fastapi.responses import FileResponse
+from fynautoserver.path_config import SRC_DIR
 
 icon_gen_router= APIRouter()
 

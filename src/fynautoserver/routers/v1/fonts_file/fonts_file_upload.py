@@ -148,9 +148,8 @@ async def create_fonts(
                     # Optionally update your index.tsx or other metadata
                     update_index_tsx(boldFont.filename, tenancyName,"Bold")
             
-            response = existing.model_dump()
-            response['id'] = str(response['id'])
-            return create_response(success=True,result={'message':"Font Path Updated Successfully",'fontsData':response},status_code=200)
+            data = await get_fonts_data(tenantId,tenancyName)
+            return create_response(success=True,result={'message':"Font Path Updated Successfully",'fontsData':data},status_code=200)
         else:
             if defaultFont:
                 # Remove the old font if it exists

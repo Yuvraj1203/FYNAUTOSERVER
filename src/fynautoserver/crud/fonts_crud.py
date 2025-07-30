@@ -2,7 +2,7 @@ from typing import Optional
 from fynautoserver.schemas.index import Fonts
 import re
 from fynautoserver.path_config import SRC_DIR
-import os
+import os, base64
 
 def update_index_tsx(font_filename: str, tenancyName: str, role: str):
 
@@ -66,9 +66,8 @@ async def create_fonts_db(tenantId:str,tenancyName:str,defaultFontName:str,light
             boldFontPath=boldFontPath or None
             )
         await fonts.insert()
-        response = fonts.model_dump()
-        response['id'] = str(response['id'])
-        return {"message":'Fonts File Uploaded Successfully','fontsData':response}
+        data = await get_fonts_data(tenantId,tenancyName)
+        return {"message":'Fonts File Uploaded Successfully','fontsData':data}
     else:
         if lightFontPath:
             existing.lightFontPath = lightFontPath
@@ -79,18 +78,45 @@ async def create_fonts_db(tenantId:str,tenancyName:str,defaultFontName:str,light
         if boldFontPath:
             existing.boldFontPath = boldFontPath
             await existing.save()
-        response = existing.model_dump()
-        response['id'] = str(response['id'])
-        return {"message":'Fonts File Uploaded Successfully','fontsData':response}
+        data = await get_fonts_data(tenantId,tenancyName)
+        return {"message":'Fonts File Uploaded Successfully','fontsData':data}
     
-
+def read_file_base64(file_path: str):
+    with open(file_path, "rb") as f:
+        return base64.b64encode(f.read()).decode("utf-8")
+    
 async def get_fonts_data(tenantId:str,tenancyName:str):
     existing = await Fonts.find_one({"tenantId":tenantId})
 
     if existing:
         response = existing.model_dump()
+
+        #file location
+        if existing.lightFontPath :
+            light_font_file = os.path.join(SRC_DIR, existing.lightFontPath)
+        if existing.regularFontPath :
+            regular_font_file = os.path.join(SRC_DIR, existing.regularFontPath)
+        if existing.boldFontPath :
+            bold_font_file = os.path.join(SRC_DIR, existing.boldFontPath)
+
+        response_data = {
+            "lightFont": {
+                "base64": read_file_base64(light_font_file) if light_font_file else None,
+                "fileName": os.path.basename(light_font_file) if light_font_file else None
+            },
+            "regularFont": {
+                "base64": read_file_base64(regular_font_file) if regular_font_file else None,
+                "fileName": os.path.basename(regular_font_file) if regular_font_file else None
+            },
+            "boldFont": {
+                "base64": read_file_base64(bold_font_file) if bold_font_file else None,
+                "fileName": os.path.basename(bold_font_file) if bold_font_file else None
+            },
+        'success': True,
+        }
+
         response['id'] = str(response['id'])
-        return {"message":'Fonts fetched Successfully','fontsData':response}
+        response['files'] = response_data
+        return response
     else:
         return {"message":'no fonts found'}
-

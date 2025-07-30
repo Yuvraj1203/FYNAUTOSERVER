@@ -164,9 +164,11 @@ async def generate_icons_crud(
     with open(app_banner_path, "wb") as buffer:
         shutil.copyfileobj(app_banner.file, buffer)
 
+    # Save notification_icon
+    notification_icon_temp_path = os.path.join(save_path, "temp_notification_icon.png")
+
     # Temporary save uploads
     app_icon_temp_path = 'temp_app_icon.png'
-    notification_icon_temp_path = 'temp_notification_icon.png'
 
     with open(app_icon_temp_path, "wb") as f:
         f.write(app_icon_bytes)
@@ -186,6 +188,5 @@ async def generate_icons_crud(
     finally:
         # Clean up temp files
         os.remove(app_icon_temp_path)
-        os.remove(notification_icon_temp_path)
 
     return {"message": "Icons generated successfully!"}
