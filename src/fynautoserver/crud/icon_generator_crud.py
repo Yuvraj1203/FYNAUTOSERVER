@@ -1,5 +1,5 @@
 import shutil
-import os
+import os, base64
 from fastapi import APIRouter, HTTPException, UploadFile, File
 from PIL import Image, ImageDraw
 from fynautoserver.path_config import SRC_DIR
@@ -189,4 +189,29 @@ async def generate_icons_crud(
         # Clean up temp files
         os.remove(app_icon_temp_path)
 
-    return {"message": "Icons generated successfully!"}
+    source_icons = await get_icons_data(tenantId,tenancyName)
+    return {"message": "Icons generated successfully!","iconsData":source_icons}
+
+def read_file_base64(file_path: str):
+    with open(file_path, "rb") as f:
+        return base64.b64encode(f.read()).decode("utf-8")
+    
+async def get_icons_data(tenantId:str,tenancyName:str):
+    common_path = os.path.join(SRC_DIR,f"tenant/tenants/{tenancyName}/assets/images/")
+    notification_image = os.path.join(SRC_DIR,common_path,"temp_notification_icon.png")
+
+    if os.path.exists(notification_image):
+        #file location
+        icon_image = os.path.join(SRC_DIR, common_path,'appIcon.png')
+        banner_image = os.path.join(SRC_DIR, common_path,'appBanner.png')
+
+        response_data = {
+            "appIcon": read_file_base64(icon_image) if icon_image else None,
+            "bannerIcon": read_file_base64(banner_image) if banner_image else None,
+            "notificationIcon": read_file_base64(notification_image) if notification_image else None,
+            'success': True,
+        }
+
+        return response_data
+    else:
+        return {"message":'no fonts found'} 

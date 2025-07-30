@@ -14,6 +14,7 @@ from fynautoserver.path_config import SRC_DIR
 from fynautoserver.crud.file_config_crud import get_congif_files
 from fynautoserver.crud.colors_crud import get_theme_Colors
 from fynautoserver.crud.fonts_crud import get_fonts_data
+from fynautoserver.crud.icon_generator_crud import get_icons_data
 
 async def add_tenant(payload:AddTenantModel):
         existing = await AddTenantSchema.find_one({"tenantId": payload.tenantId})
@@ -165,13 +166,15 @@ async def fetch_form_data(tenantId:str,tenancyName:str):
         files_config = await get_congif_files(tenancyName)
         theme_colors = await get_theme_Colors(tenantId)
         fonts_Data = await get_fonts_data(tenantId,tenancyName)
+        iconsData = await get_icons_data(tenantId,tenancyName)
         return {
             "message":'form data fetched successfully',
             'id':existing.tenantId,
             'tenantFormData':tenantInfo,
             'fileConfigsData':files_config,
             'themeColors':theme_colors,
-            'fontsData':fonts_Data
+            'fontsData':fonts_Data,
+            'iconsData':iconsData
             }
     else:
         return {"message":'no tenant form data found','tenantFormData':tenantInfo}
