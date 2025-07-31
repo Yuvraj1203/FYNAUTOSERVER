@@ -3,3 +3,4 @@ from fynautoserver.schemas.tenant_info_schema.add_tenant_schema import AddTenant
 from fynautoserver.schemas.tenant_info_schema.add_tenant_schema import StepModel
 from fynautoserver.schemas.tenant_fonts.fonts import Fonts
 from fynautoserver.schemas.tenant_color.tenant_color import Color
+from fynautoserver.schemas.user_schema.user_schema import UserSchema

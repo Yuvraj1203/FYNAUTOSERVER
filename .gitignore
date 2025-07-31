@@ -8,5 +8,5 @@ __pycache__/
 
 # tenant folders
 
-*/tenant/tenants/*
+*/tenant/*
 src/types/*
