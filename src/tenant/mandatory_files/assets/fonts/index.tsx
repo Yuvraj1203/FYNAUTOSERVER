@@ -1,16 +1,16 @@
-import {MD3Type} from 'react-native-paper/lib/typescript/types';
+import { MD3Type } from "react-native-paper/lib/typescript/types";
 
 export const CustomFonts = {
-  Regular: 'Quicksand-SemiBold',
-  Light: 'Quicksand-Light',
-  Bold: 'Quicksand-Bold',
+  Regular: "Quicksand-regular",
+  Light: "Quicksand-light",
+  Bold: "Quicksand-bold",
 };
 
 export const _fontConfig = {
   displaySmall: {
     fontFamily: CustomFonts.Regular,
     fontSize: 36,
-    fontWeight: '400',
+    fontWeight: "400",
     letterSpacing: 0,
     lineHeight: 44,
   } as MD3Type,
@@ -18,7 +18,7 @@ export const _fontConfig = {
   displayMedium: {
     fontFamily: CustomFonts.Bold,
     fontSize: 45,
-    fontWeight: '400',
+    fontWeight: "400",
     letterSpacing: 0,
     lineHeight: 52,
   } as MD3Type,
@@ -26,7 +26,7 @@ export const _fontConfig = {
   displayLarge: {
     fontFamily: CustomFonts.Bold,
     fontSize: 57,
-    fontWeight: '400',
+    fontWeight: "400",
     letterSpacing: 0,
     lineHeight: 64,
   } as MD3Type,
@@ -34,7 +34,7 @@ export const _fontConfig = {
   headlineSmall: {
     fontFamily: CustomFonts.Regular,
     fontSize: 24,
-    fontWeight: '400',
+    fontWeight: "400",
     letterSpacing: 0,
     lineHeight: 32,
   } as MD3Type,
@@ -42,7 +42,7 @@ export const _fontConfig = {
   headlineMedium: {
     fontFamily: CustomFonts.Regular,
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     letterSpacing: 0,
     lineHeight: 36,
   } as MD3Type,
@@ -50,7 +50,7 @@ export const _fontConfig = {
   headlineLarge: {
     fontFamily: CustomFonts.Bold,
     fontSize: 32,
-    fontWeight: '400',
+    fontWeight: "400",
     letterSpacing: 0,
     lineHeight: 40,
   } as MD3Type,
@@ -58,7 +58,7 @@ export const _fontConfig = {
   titleSmall: {
     fontFamily: CustomFonts.Regular,
     fontSize: 14,
-    fontWeight: '400',
+    fontWeight: "400",
     letterSpacing: 0,
     lineHeight: 20,
   } as MD3Type,
@@ -66,7 +66,7 @@ export const _fontConfig = {
   titleMedium: {
     fontFamily: CustomFonts.Regular,
     fontSize: 20,
-    fontWeight: '400',
+    fontWeight: "400",
     letterSpacing: 0,
     lineHeight: 24,
   } as MD3Type,
@@ -74,7 +74,7 @@ export const _fontConfig = {
   titleLarge: {
     fontFamily: CustomFonts.Bold,
     fontSize: 22,
-    fontWeight: '400',
+    fontWeight: "400",
     letterSpacing: 0,
     lineHeight: 28,
   } as MD3Type,
@@ -82,7 +82,7 @@ export const _fontConfig = {
   labelSmall: {
     fontFamily: CustomFonts.Regular,
     fontSize: 10,
-    fontWeight: '400',
+    fontWeight: "400",
     letterSpacing: 0,
     lineHeight: 12,
   } as MD3Type,
@@ -90,7 +90,7 @@ export const _fontConfig = {
   labelMedium: {
     fontFamily: CustomFonts.Regular,
     fontSize: 12,
-    fontWeight: '400',
+    fontWeight: "400",
     letterSpacing: 0,
     lineHeight: 16,
   } as MD3Type,
@@ -98,7 +98,7 @@ export const _fontConfig = {
   labelLarge: {
     fontFamily: CustomFonts.Bold,
     fontSize: 14,
-    fontWeight: '400',
+    fontWeight: "400",
     letterSpacing: 0,
     lineHeight: 20,
   } as MD3Type,
@@ -106,7 +106,7 @@ export const _fontConfig = {
   bodySmall: {
     fontFamily: CustomFonts.Regular,
     fontSize: 12,
-    fontWeight: '400',
+    fontWeight: "400",
     letterSpacing: 0,
     lineHeight: 16,
   } as MD3Type,
@@ -114,14 +114,14 @@ export const _fontConfig = {
   bodyMedium: {
     fontFamily: CustomFonts.Regular,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     letterSpacing: 0,
     lineHeight: 20,
   } as MD3Type,
 
   bodyLarge: {
     fontFamily: CustomFonts.Bold,
-    fontWeight: '600',
+    fontWeight: "600",
     fontSize: 16,
     letterSpacing: 0,
     lineHeight: 24,
