@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Union
 from fastapi.responses import JSONResponse
 from fynautoserver.models.index import ResponseModel
 
@@ -8,7 +8,7 @@ def create_response(
     result: Any = None,
     error_message: str = None,
     error_detail: str = None,
-    status_code: int = 200,
+    status_code: Union[int, str] = 200,
     unAuthorizedRequest: bool = True
 ) -> JSONResponse:
     content = ResponseModel(
