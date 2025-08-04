@@ -4,13 +4,15 @@ from enum import Enum
 
 class UserRoleEnum(str, Enum):
     admin = "Admin"
-    creator = "Creator"
+    uatcreator = "UATCreator"
+    devcreator = "DEVCreator"
     viewer = "Viewer"
 
 class UserSchema(Document):
     username: str
     password: str
-    role: Optional[UserRoleEnum] = "Creator" 
+    role: Optional[UserRoleEnum] = "DEVCreator" 
+    refreshToken: Optional[str] = None
 
     class Settings:
         name = 'Users'

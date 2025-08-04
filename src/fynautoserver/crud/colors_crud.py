@@ -16,7 +16,6 @@ async def create_colors_db(tenantId: str, tenancyName: str, theme: ThemeSchema):
     }};"""
 
     if existing:
-        print("in existing")
         existing.light = theme.light
         existing.dark = theme.dark
         await existing.save()

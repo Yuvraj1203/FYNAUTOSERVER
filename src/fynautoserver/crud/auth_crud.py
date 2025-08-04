@@ -6,7 +6,8 @@ from datetime import datetime, timedelta
 #configs for token creation
 SECRET = settings.JWT_SECRET_KEY
 ALGORITHM = settings.JWT_ALGO
-ACCESS_TOKEN_EXPIRY_MIN = 30
+ACCESS_TOKEN_EXPIRY_MIN = 15
+REFRESH_TOKEN_EXPIRY_DAYS = 1
 
 # Set up context with bcrypt
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -27,9 +28,17 @@ def create_Access_token(data:dict, expires_delta:timedelta = None):
     encoded_jwt = jwt.encode(to_encode,SECRET,algorithm=ALGORITHM)
     return encoded_jwt
 
+#create refresh token
+def create_refresh_token(data:dict):
+    to_encode = data.copy()
+    exipre = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRY_DAYS)
+    to_encode.update({'exp':exipre})
+    return jwt.encode(to_encode,SECRET,algorithm=ALGORITHM)
+
+#decode tokens
 def decode_access_token(token:str):
     try:
-        payload = jwt.decode(token,SECRET,algorithms=ALGORITHM)
+        payload = jwt.decode(token,SECRET,algorithms=[ALGORITHM])
         return payload
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
         return None

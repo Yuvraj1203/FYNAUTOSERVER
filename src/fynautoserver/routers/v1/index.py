@@ -13,6 +13,7 @@ from fynautoserver.utils.auth.dependencies import get_current_user
 protected_router = APIRouter(
     dependencies=[Depends(get_current_user)]
 )
+
 protected_router.include_router(tenant_info_router, prefix='/tenantInfo')
 protected_router.include_router(file_configs_router, prefix='/fileConfigs')
 protected_router.include_router(fonts_router, prefix='/fontsUpload')
@@ -24,6 +25,7 @@ protected_router.include_router(icon_gen_router, prefix="/iconGenerator")
 # ============================================ Public routes (no auth) ================================
 
 public_router = APIRouter()
+
 public_router.include_router(user_router, prefix="/user")
 
 # =====================================================================================================

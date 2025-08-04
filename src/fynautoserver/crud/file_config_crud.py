@@ -10,7 +10,6 @@ async def files_upload(tenantId:str, tenancyName:str,files: List[UploadFile] = F
     try:
         saved = []
         for file in files:
-            print(f"Received file: {file.filename}")
             contents = await file.read()
             file_path = os.path.join(UPLOAD_DIR, file.filename)
             with open(file_path, "wb") as f:

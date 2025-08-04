@@ -15,7 +15,6 @@ def get_current_user(request:Request):
 
     try:
         payload = decode_access_token(token)
-        print(payload,"==================================================")
         return payload
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
         raise HTTPException(

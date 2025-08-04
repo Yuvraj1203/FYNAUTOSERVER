@@ -9,7 +9,6 @@ color_router=APIRouter()
 @color_router.post("/createColors",response_model=ResponseModel)
 async def create_colors(tenantId:str,tenancyName:str,theme:ThemeSchema):
     try:
-        print("in api")
         response=await create_colors_db(tenantId,tenancyName,theme)
         return create_response(success=True, result=response, status_code=200)
 
