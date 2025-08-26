@@ -6,6 +6,10 @@ from fynautoserver.database import init_db
 
 app = FastAPI()
 
+#Router
+app.include_router(router, prefix='/api',tags=["tenants"])
+
+
 # Add CORS middleware **here**
 app.add_middleware(
     CORSMiddleware,
@@ -17,9 +21,6 @@ app.add_middleware(
 
 #db connection eshtablishing
 app.add_event_handler("startup",init_db)
-
-#Router
-app.include_router(router, prefix='/api',tags=["tenants"])
 
 def main():
     uvicorn.run("fynautoserver.main:app", host="0.0.0.0", port=8000, reload=True)

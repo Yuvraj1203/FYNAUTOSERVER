@@ -2,6 +2,7 @@ from passlib.context import CryptContext
 from fynautoserver.config.config import settings
 import jwt
 from datetime import datetime, timedelta
+from fynautoserver.utils.index import create_response
 
 #configs for token creation
 SECRET = settings.JWT_SECRET_KEY
@@ -41,4 +42,4 @@ def decode_access_token(token:str):
         payload = jwt.decode(token,SECRET,algorithms=[ALGORITHM])
         return payload
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
-        return None
+        return create_response(success=False, result='Token expired', status_code=401)

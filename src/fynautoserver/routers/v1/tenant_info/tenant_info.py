@@ -1,12 +1,14 @@
 from fastapi import APIRouter, FastAPI
 from fynautoserver.models.index import TenantInfoModel , AddTenantModel
-from fynautoserver.crud.tenant_info_crud import create_tenant_info , getTenantInfoByTenancyName, add_tenant, remove_tenant,update_tenant_step, fetch_form_data
+from fynautoserver.crud.tenant_info_crud import create_tenant_info , getTenantInfoByTenancyName, add_tenant, remove_tenant,update_tenant_step, fetch_form_data, download_tenant_folder
 from fynautoserver.utils.index import create_response,APIExceptionHandler
 from fynautoserver.models.index import ResponseModel
 from fynautoserver.schemas.index import AddTenantSchema,StepModel
 from fastapi.encoders import jsonable_encoder
 from pymongo.errors import PyMongoError
 from typing import List
+from fynautoserver.path_config import SRC_DIR
+import os
 
 app = FastAPI()
 
@@ -86,6 +88,27 @@ async def updateTenantStep(tenantId:str,step:int,steps:List[StepModel]):
         return create_response(
             success=False,
             error_message="Failed to update tenant step. Please try again.",
+            error_detail=str(e),
+            status_code=500,
+        )
+    
+@router.get('/downloadTenantFolder',response_model=ResponseModel)
+async def downloadTenantFolder(tenantId:str,tenancyName:str):
+    return await download_tenant_folder(tenantId,tenancyName)
+    
+    return create_response(
+        success=True,
+        result=tenantFolder,
+        status_code=200,
+    )
+    try:
+        tenantFolder = await download_tenant_folder(tenantId,tenancyName)
+        return create_response(success=True, result=tenantFolder, status_code=200)
+    except Exception as e:
+        print(f"error during downloading folder zip : {e}")
+        return create_response(
+            success=False,
+            error_message="Failed to download zip. Please try again.",
             error_detail=str(e),
             status_code=500,
         )

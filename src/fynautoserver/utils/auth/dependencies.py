@@ -6,6 +6,7 @@ import jwt
 def get_current_user(request:Request):
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
+        # raise create_response(success=False, result={'message':'User Unauthorized'}, status_code=status.HTTP_401_UNAUTHORIZED)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User Unauthorized"
@@ -17,6 +18,7 @@ def get_current_user(request:Request):
         payload = decode_access_token(token)
         return payload
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+        # raise create_response(success=False, result={'message':'Invalid Token'}, status_code=status.HTTP_401_UNAUTHORIZED)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid Token"

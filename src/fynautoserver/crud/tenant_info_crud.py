@@ -1,4 +1,4 @@
-import json, os
+import json, os, io, zipfile
 from fynautoserver.models.index import TenantInfoModel , AddTenantModel
 from fynautoserver.utils.index import create_response
 from fynautoserver.schemas.index import TenantInfoSchema, AddTenantSchema,StepModel, Fonts, Color
@@ -10,6 +10,7 @@ from fynautoserver.schemas.tenant_info_schema.add_tenant_schema import DEFAULT_S
 from copy import deepcopy
 from typing import List
 import shutil
+from fastapi.responses import StreamingResponse
 from fynautoserver.path_config import SRC_DIR
 from fynautoserver.crud.file_config_crud import get_congif_files
 from fynautoserver.crud.colors_crud import get_theme_Colors
@@ -179,3 +180,19 @@ async def fetch_form_data(tenantId:str,tenancyName:str):
             }
     else:
         return {"message":'no tenant form data found','tenantFormData':tenantInfo}
+    
+
+async def download_tenant_folder(tenantId:str,tenancyName:str):
+    tenant_folder = f"tenant/tenants/{tenancyName}"
+    output_folder = f"tenant/zip/{tenancyName}.zip"
+    folder_path = os.path.join(SRC_DIR, tenant_folder)
+    output_path = os.path.join(SRC_DIR, output_folder)
+
+    zip_folder_name = zip_folder(folder_path, output_path)
+
+    # return StreamingResponse(
+    #     zip_io,
+    #     media_type="application/x-zip-compressed",
+    #     headers={"Content-Disposition": f"attachment; filename={zip_filename}"}
+    # )
+    return zip_folder_name
