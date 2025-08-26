@@ -7,8 +7,8 @@ from fynautoserver.utils.index import create_response
 #configs for token creation
 SECRET = settings.JWT_SECRET_KEY
 ALGORITHM = settings.JWT_ALGO
-ACCESS_TOKEN_EXPIRY_MIN = 15
-REFRESH_TOKEN_EXPIRY_DAYS = 1
+ACCESS_TOKEN_EXPIRY_DAYS = 1
+REFRESH_TOKEN_EXPIRY_DAYS = 12
 
 # Set up context with bcrypt
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -24,7 +24,7 @@ def verify_password(plainPassword:str,hashedPassword:str):
 #create access token
 def create_Access_token(data:dict, expires_delta:timedelta = None):
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta if expires_delta else timedelta(minutes=ACCESS_TOKEN_EXPIRY_MIN))
+    expire = datetime.utcnow() + (expires_delta if expires_delta else timedelta(days=ACCESS_TOKEN_EXPIRY_DAYS))
     to_encode.update({'exp':expire})
     encoded_jwt = jwt.encode(to_encode,SECRET,algorithm=ALGORITHM)
     return encoded_jwt
