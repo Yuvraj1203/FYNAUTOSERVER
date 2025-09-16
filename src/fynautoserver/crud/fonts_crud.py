@@ -7,11 +7,11 @@ import os, base64
 def update_index_tsx(font_filename: str, tenancyName: str, role: str):
 
     # Normalize role (e.g., 'regular' -> 'Regular')
-    role = role.strip().capitalize()
-    allowed_roles = {"Light", "Regular", "Bold"}  # Extend this set if needed
+    # role = role.strip().capitalize()
+    # allowed_roles = {"Light", "Regular", "Bold"}  # Extend this set if needed
 
-    if role not in allowed_roles:
-        raise ValueError(f"Invalid role '{role}'. Allowed roles are: {allowed_roles}")
+    # if role not in allowed_roles:
+    #     raise ValueError(f"Invalid role '{role}'. Allowed roles are: {allowed_roles}")
 
     # Build file path
     colors_folder = f"tenant/tenants/{tenancyName}/assets/fonts/index.tsx"

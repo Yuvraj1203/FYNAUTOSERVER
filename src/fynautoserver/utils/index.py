@@ -1,3 +1,4 @@
 from fynautoserver.utils.api_utils.response import create_response
 from fynautoserver.utils.zip_utils.zip_utils import zip_folder
 from fynautoserver.utils.error_handling.error_handling import APIExceptionHandler
+from fynautoserver.utils.file_extraction.file_extraction import extract_fonts_from_ts
