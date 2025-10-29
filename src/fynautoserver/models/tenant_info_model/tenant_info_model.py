@@ -2,14 +2,20 @@ from pydantic import BaseModel , field_validator , ConfigDict
 from typing import Optional
 
 class TenantInfoModel(BaseModel):
+    androidVersionCode:str
+    androidVersionName:str
     apiUrl: str
     appName: str
     auth0ClientId: str
     auth0Domain: str
     auth0Organization: Optional[str] = None
     bundleId: str
+    iosTeamId : str
+    iosVersionCode: str
+    iosVersionName: str
     oktaClientId: Optional[str] = None
     oktaDomain: Optional[str] = None
+    oktaTenancyName: Optional[str] = None
     packageName: str
     sentryDsn: str
     tenancyName: str
