@@ -19,12 +19,14 @@ from fynautoserver.crud.icon_generator_crud import get_icons_data
 
 async def add_tenant(payload:AddTenantModel):
         existing = await AddTenantSchema.find_one({"tenantId": payload.tenantId})
+        print(existing,'existing done')
         if existing:
             return {"message": "Tenant Already Exists"}
         else:
             payload_with_steps = payload.model_dump()
             payload_with_steps["steps"] = deepcopy(DEFAULT_STEPS)
-
+            
+            print({'existingpayload':payload_with_steps})
             tenant_details = AddTenantSchema(**payload_with_steps)
             await tenant_details.insert()
                 #for setting assets folder to tenat
