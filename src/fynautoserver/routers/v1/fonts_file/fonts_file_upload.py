@@ -48,9 +48,9 @@ async def create_fonts(
             existing.boldFontPath = os.path.join(destination_folder_for_db, fonts['Bold'])
             await existing.save()  # or your DB update logic
 
-            for weight in [fonts['Light'], fonts['Regular'], fonts['Bold']]:
-                # Optionally update your index.tsx or other metadata
-                update_index_tsx(f'{weight}.ttf', tenancyName,weight)
+            # for weight in [fonts['Light'], fonts['Regular'], fonts['Bold']]:
+            #     # Optionally update your index.tsx or other metadata
+            #     update_index_tsx(f'{weight}.ttf', tenancyName,weight)
         
         else:
             if lightFont:
@@ -151,8 +151,8 @@ async def create_fonts(
                 # Optionally update your index.tsx or other metadata
                 update_index_tsx(boldFont.filename, tenancyName,"Bold")
         
-        data = await get_fonts_data(tenantId,tenancyName)
-        return create_response(success=True,result={'message':"Font Path Updated Successfully",'fontsData':data},status_code=200)
+        # data = await get_fonts_data(tenantId,tenancyName)
+        return create_response(success=True,result={'message':"Font Path Updated Successfully"},status_code=200)
     else:
         if defaultFont:
             # Remove the old font if it exists
@@ -175,8 +175,8 @@ async def create_fonts(
                 update_index_tsx(f'{weight}.ttf', tenancyName,weight)
             
             # Insert into DB
-            data = await create_fonts_db(tenantId,tenancyName,defaultFontName,lightFontPath,regularFontPath,boldFontPath)
-            return create_response(success=True, result=data, status_code=200)
+            # data = await create_fonts_db(tenantId,tenancyName,defaultFontName,lightFontPath,regularFontPath,boldFontPath)
+            return create_response(success=True, result="success", status_code=200)
         
         else:
             if lightFont:
@@ -240,8 +240,8 @@ async def create_fonts(
                 boldFontPath=os.path.join(fonts_folder, boldFont.filename)
 
             # Insert into DB
-            data = await create_fonts_db(tenantId,tenancyName,defaultFontName,lightFontPath,regularFontPath,boldFontPath)
-            return create_response(success=True, result=data, status_code=200)
+            # data = await create_fonts_db(tenantId,tenancyName,defaultFontName,lightFontPath,regularFontPath,boldFontPath)
+            return create_response(success=True, result="success", status_code=200)
     try:
         existing=await Fonts.find_one({"tenantId": tenantId})
         existing.defaultFontName = defaultFontName
@@ -396,7 +396,7 @@ async def create_fonts(
                     update_index_tsx(f'{weight}.ttf', tenancyName,weight)
                 
                 # Insert into DB
-                data = await create_fonts_db(tenantId,tenancyName,defaultFontName,lightFontPath,regularFontPath,boldFontPath)
+                # data = await create_fonts_db(tenantId,tenancyName,defaultFontName,lightFontPath,regularFontPath,boldFontPath)
                 return create_response(success=True, result=data, status_code=200)
             
             else:
@@ -461,7 +461,7 @@ async def create_fonts(
                     boldFontPath=os.path.join(fonts_folder, boldFont.filename)
 
                 # Insert into DB
-                data = await create_fonts_db(tenantId,tenancyName,defaultFontName,lightFontPath,regularFontPath,boldFontPath)
+                # data = await create_fonts_db(tenantId,tenancyName,defaultFontName,lightFontPath,regularFontPath,boldFontPath)
                 return create_response(success=True, result=data, status_code=200)
                 
 
