@@ -35,9 +35,9 @@ async def add_tenant(payload:AddTenantModel):
             destination_folder_Assets = f"./src/tenant/tenants/{payload.tenancyName}"
             shutil.copytree(source_folder_Assets, destination_folder_Assets,dirs_exist_ok=True)
             
-            font_light_folder = f"tenant/tenants/{payload.tenancyName}/assets/fonts/AppFont/Quicksand Light.ttf"
-            font_regular_folder = f"tenant/tenants/{payload.tenancyName}/assets/fonts/AppFont/Quicksand SemiBold.ttf"
-            font_bold_folder = f"tenant/tenants/{payload.tenancyName}/assets/fonts/AppFont/Quicksand Bold.ttf"
+            font_light_folder = f"tenant/tenants/{payload.tenancyName}/assets/fonts/AppFont/Quicksand-Light.ttf"
+            font_regular_folder = f"tenant/tenants/{payload.tenancyName}/assets/fonts/AppFont/Quicksand-SemiBold.ttf"
+            font_bold_folder = f"tenant/tenants/{payload.tenancyName}/assets/fonts/AppFont/Quicksand-Bold.ttf"
             #create
             fonts=Fonts(
                 tenantId=payload.tenantId,
