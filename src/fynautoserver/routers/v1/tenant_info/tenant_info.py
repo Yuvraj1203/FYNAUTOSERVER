@@ -31,8 +31,8 @@ async def getTenantInfo():
         APIExceptionHandler.internal_server_error(str(e))
 
 @router.get('/getTenantIdByName')
-async def getTenantIdByName(tenancyName: str):
-    response = await getTenantInfoByTenancyName(tenancyName)
+async def getTenantIdByName(tenancyName: str,envUrl : str):
+    response = await getTenantInfoByTenancyName(tenancyName,envUrl)
     return response
 
 @router.get('/getAllTenants',response_model=ResponseModel)

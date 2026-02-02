@@ -107,11 +107,11 @@ async def create_tenant_info(payload:TenantInfoModel):
         print(f'error from create_tenant_info due to : {e}')
 
 
-async def getTenantInfoByTenancyName(tenancyName : str):
+async def getTenantInfoByTenancyName(tenancyName : str, envUrl:str):
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                "https://aa.fyndev.com/api/services/app/User/gettenantidbyname",
+                f"{envUrl}api/services/app/User/gettenantidbyname",
                 params={"TenancyName": tenancyName},
                 timeout=10.0
             )
