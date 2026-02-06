@@ -22,6 +22,7 @@ async def create_fonts(
                         regularFont: Optional[UploadFile] = File(None),
                         boldFont: Optional[UploadFile] = File(None),
                        ):
+    return create_response(success=True, result="success", status_code=200)
     existing=await Fonts.find_one({"tenantId": tenantId})
     existing.defaultFontName = defaultFontName
     if existing:
