@@ -7,7 +7,7 @@ from fynautoserver.database import init_db
 app = FastAPI()
 
 #Router
-app.include_router(router, prefix='/api',tags=["tenants"])
+app.include_router(router, prefix='/api')
 
 
 # Add CORS middleware **here**

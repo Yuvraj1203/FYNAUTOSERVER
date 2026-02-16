@@ -4,3 +4,16 @@ from fynautoserver.schemas.tenant_info_schema.add_tenant_schema import StepModel
 from fynautoserver.schemas.tenant_fonts.fonts import Fonts
 from fynautoserver.schemas.tenant_color.tenant_color import Color
 from fynautoserver.schemas.user_schema.user_schema import UserSchema
+from fynautoserver.schemas.releases_table.releases_table import ReleasesVersionTableSchema, StatusType, TenantReleaseStatusEnum
+
+__all__ = [
+    "TenantInfoSchema",
+    "AddTenantSchema",
+    "StepModel",
+    "Fonts",
+    "Color",
+    "UserSchema",
+    "ReleasesVersionTableSchema",
+    "StatusType",
+    "TenantReleaseStatusEnum",
+]

@@ -1,25 +1,17 @@
-from fastapi import Request, status, HTTPException
-from fynautoserver.utils.index import create_response
 from fynautoserver.crud.auth_crud import decode_access_token
+from fastapi import status, HTTPException, Security
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from typing import Any
 import jwt
 
-def get_current_user(request:Request):
-    auth_header = request.headers.get("Authorization")
-    if not auth_header or not auth_header.startswith("Bearer "):
-        # raise create_response(success=False, result={'message':'User Unauthorized'}, status_code=status.HTTP_401_UNAUTHORIZED)
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User Unauthorized"
-        )
-    
-    token = auth_header.split(" ")[1]
+security = HTTPBearer()
 
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Security(security)
+) -> Any:
     try:
+        token = credentials.credentials
         payload = decode_access_token(token)
         return payload
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
-        # raise create_response(success=False, result={'message':'Invalid Token'}, status_code=status.HTTP_401_UNAUTHORIZED)
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Token"
-        )
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Token")

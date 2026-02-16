@@ -6,6 +6,7 @@ from fynautoserver.routers.v1.color_step.color_step_route import color_router
 from fynautoserver.routers.v1.icon_generator.icon_generator import icon_gen_router
 from fynautoserver.routers.v1.user.user import user_router
 from fynautoserver.utils.auth.dependencies import get_current_user
+from fynautoserver.routers.v1.releases_version_routes.releases_version_routes import releases_version_router
 
 
 # ============================================= Authenticated routes ==================================
@@ -14,11 +15,14 @@ protected_router = APIRouter(
     dependencies=[Depends(get_current_user)]
 )
 
-protected_router.include_router(tenant_info_router, prefix='/tenantInfo')
-protected_router.include_router(file_configs_router, prefix='/fileConfigs')
-protected_router.include_router(fonts_router, prefix='/fontsUpload')
-protected_router.include_router(color_router, prefix="/colorStep")
-protected_router.include_router(icon_gen_router, prefix="/iconGenerator")
+protected_router.include_router(tenant_info_router, prefix='/tenantInfo',tags=["brandings"])
+protected_router.include_router(file_configs_router, prefix='/fileConfigs',tags=["brandings"])
+protected_router.include_router(fonts_router, prefix='/fontsUpload',tags=["brandings"])
+protected_router.include_router(color_router, prefix="/colorStep",tags=["brandings"])
+protected_router.include_router(icon_gen_router, prefix="/iconGenerator",tags=["brandings"])
+
+#tenants releases
+protected_router.include_router(releases_version_router,prefix="/releasesVersion",tags=["releases"])
 
 # =====================================================================================================
 
