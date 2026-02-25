@@ -7,6 +7,7 @@ from fynautoserver.routers.v1.icon_generator.icon_generator import icon_gen_rout
 from fynautoserver.routers.v1.user.user import user_router
 from fynautoserver.utils.auth.dependencies import get_current_user
 from fynautoserver.routers.v1.releases_version_routes.releases_version_routes import releases_version_router
+from fynautoserver.routers.v1.global_settings.global_settings import router as global_settings_router
 
 
 # ============================================= Authenticated routes ==================================
@@ -23,6 +24,9 @@ protected_router.include_router(icon_gen_router, prefix="/iconGenerator",tags=["
 
 #tenants releases
 protected_router.include_router(releases_version_router,prefix="/releasesVersion",tags=["releases"])
+
+#global settings
+protected_router.include_router(global_settings_router, prefix="/globalSettings", tags=["global"])
 
 # =====================================================================================================
 
