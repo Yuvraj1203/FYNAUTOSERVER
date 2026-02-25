@@ -13,8 +13,7 @@ class TenantInfoModel(BaseModel):
     iosTeamId : str
     iosVersionCode: str
     iosVersionName: str
-    oktaClientId: Optional[str] = None
-    oktaDomain: Optional[str] = None
+    matchBranch: Optional[str] = None
     oktaTenancyName: Optional[str] = None
     packageName: str
     sentryDsn: str
