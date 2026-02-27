@@ -16,6 +16,12 @@ class StatusType(BaseModel):
     pending: int
     failed: int
 
+class ReleaseResponseModel(BaseModel):
+    id: str
+    version: str
+    status: StatusType
+    tenants: List[ReleaseTenantsModel]
+
 class ReleasesVersionTableSchema(Document):
     version: str
     status: StatusType

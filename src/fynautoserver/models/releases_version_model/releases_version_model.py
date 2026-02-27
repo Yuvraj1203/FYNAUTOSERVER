@@ -8,6 +8,7 @@ class ReleaseTenantsModel(BaseModel):
     status: int
     androidVersion: str
     iosVersion: str
+    matchBranch: str
 
 class StatusType(BaseModel):
     published: int
@@ -20,6 +21,7 @@ class TenantVersionProjection(BaseModel):
     appName: str
     androidVersionName: str
     iosVersionName: str
+    matchBranch: str
 
 class ReleaseVersionTableResponse(BaseModel):
     id: str

@@ -4,7 +4,7 @@ from fynautoserver.models.utils_models.response_model import ResponseModel
 from fynautoserver.models.color_step.color_step_schema import ThemeSchema,color_schema
 from fynautoserver.models.user_model.user_model import UserModel, LoginModel
 from fynautoserver.models.releases_version_model.releases_version_model import TenantVersionProjection,ReleaseVersionTableResponse
-from fynautoserver.models.release_tenant_list_model.release_tenant_list_model import ReleaseTenantsModel, ReleaseTenantsListModel
+from fynautoserver.models.release_tenant_list_model.release_tenant_list_model import ReleaseTenantsModel, ReleaseTenantsListModel,ReleaseTenantCreateModel
 
 
 __all__ = [
@@ -19,4 +19,5 @@ __all__ = [
     "ReleaseVersionTableResponse",
     "ReleaseTenantsListModel",
     "ReleaseTenantsModel",
+    "ReleaseTenantCreateModel",
     ]

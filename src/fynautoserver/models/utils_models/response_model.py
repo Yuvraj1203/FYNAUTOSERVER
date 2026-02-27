@@ -7,7 +7,7 @@ class ResponseModel(BaseModel):
     result: Optional[Any] = None
     error_message: Optional[str] = Field(default=None, alias="message")
     error_detail: Optional[str] = Field(default=None, alias="detail")
-    status_code: int
+    status_code: int 
     unAuthorizedRequest: Optional[bool] = False
 
     class Config:
