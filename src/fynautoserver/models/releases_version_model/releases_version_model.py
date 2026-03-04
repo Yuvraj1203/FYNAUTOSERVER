@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Dict, Any
 from beanie import PydanticObjectId
 
 class ReleaseTenantsModel(BaseModel):
@@ -28,3 +28,7 @@ class ReleaseVersionTableResponse(BaseModel):
     version: str
     status: StatusType
     tenants: List[ReleaseTenantsModel] = []
+
+class DeployTenantRequest(BaseModel):
+    body: Dict[str, Any]
+    bearerToken: str

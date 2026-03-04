@@ -80,7 +80,8 @@ async def get_releases_version_table(skipCount:int) -> List[ReleaseResponseModel
         )
     
 #to insert particular tenat in list
-async def insert_particular_tenant_in_list( version:str,payload:ReleaseTenantCreateModel) -> ResponseModel:
+async def insert_particular_tenant_in_list( version:str,payload:ReleaseTenantCreateModel
+) -> ResponseModel:
 
     try:
         tenant_data = {
@@ -89,7 +90,6 @@ async def insert_particular_tenant_in_list( version:str,payload:ReleaseTenantCre
         }
 
         collection = ReleasesVersionTableSchema.get_motor_collection()
-
         result = await collection.update_one(
             {
                 "version": version,
