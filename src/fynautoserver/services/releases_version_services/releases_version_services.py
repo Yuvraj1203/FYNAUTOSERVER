@@ -1,5 +1,5 @@
-from fynautoserver.models.index import ResponseModel, DeployTenantRequest
-from fynautoserver.crud.releases_version_crud import get_releases_version_info_from_each_tenant, create_new_release_version_document,get_releases_version_table, check_if_already_exist_version, insert_particular_tenant_in_list
+from fynautoserver.models.index import ResponseModel, DeployTenantRequest, TenantStatusUpdateModel
+from fynautoserver.crud.releases_version_crud import get_releases_version_info_from_each_tenant, create_new_release_version_document,get_releases_version_table, check_if_already_exist_version, insert_particular_tenant_in_list, update_tenant_status_and_version
 from fastapi import HTTPException, status
 from fynautoserver.models.index import ReleaseTenantCreateModel
 from typing import Any
@@ -94,4 +94,67 @@ async def check_progress_of_deployment(token:str) -> ResponseModel:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to check_progress_of_deployment"
+        )
+
+
+async def update_tenant_status_service(
+    version: str,
+    payload: TenantStatusUpdateModel
+) -> ResponseModel:
+    """
+    Service function to update tenant status and version.
+    
+    This service:
+    1. Searches for the tenant by name in the specified version
+    2. Updates the status of that tenant
+    3. Based on status transition:
+       - pending(0)/failed(3) -> inProgress(1): increment version
+       - inProgress(1) -> failed(3): decrement version
+    4. If android=true: update android version
+    5. If ios=true: update ios version
+    """
+    try:
+        # Validate status value
+        if payload.status not in [0, 1, 2, 3]:
+            return ResponseModel(
+                success=False,
+                result={"message": "Invalid status. Must be 0 (pending), 1 (onGoing), 2 (published), or 3 (failed)"},
+                status_code=400
+            )
+        
+        # Call CRUD function to update tenant status and version
+        updated_tenant = await update_tenant_status_and_version(
+            version=version,
+            tenant_name=payload.name,
+            new_status=payload.status,
+            increment_android=payload.android,
+            increment_ios=payload.ios
+        )
+        
+        if not updated_tenant:
+            return ResponseModel(
+                success=False,
+                result={"message": "Tenant not found"},
+                status_code=404
+            )
+        
+        return ResponseModel(
+            success=True,
+            result={
+                "message": "Tenant status updated successfully",
+                "tenant": updated_tenant.model_dump()
+            },
+            status_code=200
+        )
+        
+    except HTTPException as e:
+        return ResponseModel(
+            success=False,
+            result={"message": e.detail},
+            status_code=e.status_code
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update tenant status service: {str(e)}"
         )
