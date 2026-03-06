@@ -18,3 +18,20 @@ async def insert_data_for_bulk_deployment(payload:BulkDeploymentPayloadModel) ->
     except Exception as e:
         print(f"Error inserting bulk deployment data: {e}") 
         return False
+
+async def delete_bulk_deployment_data() -> bool:
+    try:
+        await BulkDeploymentSchema.find_all().delete()
+        return True
+    except Exception as e:
+        print(f"Error deleting bulk deployment data: {e}") 
+        return False
+    
+async def check_bulk_deployment_data_available() -> int:
+    try:
+        data = await BulkDeploymentSchema.find_one()
+        length = len(data.deploymentList) if data and data.deploymentList else 0
+        return length
+    except Exception as e:
+        print(f"Error checking bulk deployment data availability: {e}") 
+        return 0
