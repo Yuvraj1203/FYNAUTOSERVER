@@ -8,6 +8,7 @@ from fynautoserver.routers.v1.user.user import user_router
 from fynautoserver.utils.auth.dependencies import get_current_user
 from fynautoserver.routers.v1.releases_version_routes.releases_version_routes import releases_version_router
 from fynautoserver.routers.v1.global_settings.global_settings import router as global_settings_router
+from fynautoserver.routers.v1.bulk_deployment_router.bulk_deployment_router import bulk_deployment_router
 
 
 # ============================================= Authenticated routes ==================================
@@ -27,6 +28,9 @@ protected_router.include_router(releases_version_router,prefix="/releasesVersion
 
 #global settings
 protected_router.include_router(global_settings_router, prefix="/globalSettings", tags=["global"])
+
+#bulk deployment
+protected_router.include_router(bulk_deployment_router)
 
 # =====================================================================================================
 

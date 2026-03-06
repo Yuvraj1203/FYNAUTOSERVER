@@ -6,6 +6,7 @@ from fynautoserver.schemas.tenant_color.tenant_color import Color
 from fynautoserver.schemas.user_schema.user_schema import UserSchema
 from fynautoserver.schemas.releases_table.releases_table import ReleasesVersionTableSchema, StatusType, TenantReleaseStatusEnum, ReleaseResponseModel
 from fynautoserver.schemas.global_settings_schema.global_settings_schema import GlobalSettingsSchema
+from fynautoserver.schemas.bulk_deployment_schema.bulk_deployment_schema import BulkDeploymentSchema, BulkDeploymentListSchema
 
 __all__ = [
     "TenantInfoSchema",
@@ -19,4 +20,6 @@ __all__ = [
     "TenantReleaseStatusEnum",
     "GlobalSettingsSchema",
     "ReleaseResponseModel",
+    "BulkDeploymentSchema",
+    "BulkDeploymentListSchema"
 ]

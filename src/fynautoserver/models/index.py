@@ -5,7 +5,7 @@ from fynautoserver.models.color_step.color_step_schema import ThemeSchema,color_
 from fynautoserver.models.user_model.user_model import UserModel, LoginModel
 from fynautoserver.models.releases_version_model.releases_version_model import TenantVersionProjection,ReleaseVersionTableResponse, DeployTenantRequest
 from fynautoserver.models.release_tenant_list_model.release_tenant_list_model import ReleaseTenantsModel, ReleaseTenantsListModel,ReleaseTenantCreateModel, TenantStatusUpdateModel, increment_version, decrement_version
-
+from fynautoserver.models.bulk_deployment_model.bulk_deployment_model import BulkDeploymentPayloadModel, BulkDeploymentListModel
 
 __all__ = [
     "TenantInfoModel",
@@ -24,4 +24,6 @@ __all__ = [
     "TenantStatusUpdateModel",
     "increment_version",
     "decrement_version",
+    "BulkDeploymentPayloadModel",
+    "BulkDeploymentListModel"
     ]
