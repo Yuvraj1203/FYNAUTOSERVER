@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 class BulkDeploymentListModel(BaseModel):
     id: str
@@ -12,4 +12,11 @@ class BulkDeploymentPayloadModel(BaseModel):
     gitBranch: str
     onlyTestflight: bool = False
     deploymentList: List[BulkDeploymentListModel]
+
+class PipelineResponseModel(BaseModel):
+    tenantName: Optional[str] = None
+    android: bool = False
+    ios: bool = False
+    androidVersion: Optional[str] = None
+    iosVersion: Optional[str] = None
 

@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from fynautoserver.models.index import ResponseModel, BulkDeploymentPayloadModel
-from fynautoserver.services.index import create_bulk_deployment_service,delete_bulk_deployment_service, get_available_bulk_deployment_data_service
+from fynautoserver.models.index import ResponseModel, BulkDeploymentPayloadModel, PipelineResponseModel
+from fynautoserver.services.index import create_bulk_deployment_service,delete_bulk_deployment_service, get_available_bulk_deployment_data_service, on_pipeline_success_service
 
 bulk_deployment_router = APIRouter(
     prefix="/bulkDeployment",
@@ -21,3 +21,8 @@ async def delete_bulk_deployment_data() -> ResponseModel:
 async def check_bulk_deployment_data_available() -> ResponseModel:
     is_data_available = await get_available_bulk_deployment_data_service()
     return is_data_available
+
+@bulk_deployment_router.post("/OnPipelineSuccess",response_model=ResponseModel)
+async def on_pipeline_success(payload: PipelineResponseModel) -> ResponseModel:
+    on_pipeline_success_response = await on_pipeline_success_service(payload)
+    return on_pipeline_success_response
