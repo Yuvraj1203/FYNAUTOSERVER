@@ -30,7 +30,7 @@ protected_router.include_router(releases_version_router,prefix="/releasesVersion
 protected_router.include_router(global_settings_router, prefix="/globalSettings", tags=["global"])
 
 #bulk deployment
-protected_router.include_router(bulk_deployment_router)
+# protected_router.include_router(bulk_deployment_router)
 
 # =====================================================================================================
 
@@ -39,6 +39,8 @@ protected_router.include_router(bulk_deployment_router)
 public_router = APIRouter()
 
 public_router.include_router(user_router, prefix="/user")
+public_router.include_router(bulk_deployment_router)
+
 
 # =====================================================================================================
 

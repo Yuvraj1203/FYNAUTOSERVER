@@ -59,7 +59,8 @@ async def on_pipeline_success_service(payload: PipelineResponseModel) -> Respons
                 "buildApk": "true" if bulk_deployment_data["onlyTestflight"] == False else "false",
                 "buildIpa": "true",
                 "azureGitToken": bulk_deployment_data["azureGitToken"],
-                **({"matchbranch": bulk_deployment_data["deploymentList"][0]["matchBranch"]} if bulk_deployment_data["deploymentList"][0].get("matchBranch") else {})
+                **({"matchbranch": bulk_deployment_data["deploymentList"][0]["matchBranch"]} if bulk_deployment_data["deploymentList"][0].get("matchBranch") else {}),
+                "deployAll": "true",
             }
         },
         bearerToken= bulk_deployment_data["azureBearerToken"]
