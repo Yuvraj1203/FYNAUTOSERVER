@@ -39,7 +39,7 @@ protected_router.include_router(global_settings_router, prefix="/globalSettings"
 public_router = APIRouter()
 
 public_router.include_router(user_router, prefix="/user")
-protected_router.include_router(bulk_deployment_router)
+public_router.include_router(bulk_deployment_router)
 
 
 # =====================================================================================================
