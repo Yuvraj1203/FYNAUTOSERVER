@@ -39,6 +39,33 @@ async def get_releases_version_info_from_each_tenant() -> List[ReleaseTenantsMod
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get_releases_version_info_from_each_tenant"
         )
+
+async def get_custom_created_tenants() -> List[ReleaseTenantsModel]:
+    try:
+        # Fetch all versions and extract custom tenants
+        version = await ReleasesVersionTableSchema.find_one(sort=[("_id",-1)])
+        if not version:
+            return []
+        
+        custom_tenants = []
+        for tenant in version.tenants:
+            if tenant.id and tenant.name:  # Assuming custom tenants have these fields
+                custom_tenants.append(
+                    ReleaseTenantsModel(
+                        id=tenant.id,
+                        name=tenant.name,
+                        status=TenantReleaseStatusEnum.pending,
+                        androidVersion=tenant.androidVersion,
+                        iosVersion=tenant.iosVersion,
+                        matchBranch=tenant.matchBranch
+                    )
+                )
+        return custom_tenants
+    except Exception as e:
+         raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to get_custom_created_tenants"
+        )
     
 async def create_new_release_version_document(allTenantsInThisVersion:List[ReleaseTenantsModel],totalTenants:int,version:str) -> ReleasesVersionTableSchema:
     try:

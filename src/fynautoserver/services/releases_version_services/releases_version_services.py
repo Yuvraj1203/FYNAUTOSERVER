@@ -1,5 +1,5 @@
 from fynautoserver.models.index import ResponseModel, DeployTenantRequest, TenantStatusUpdateModel
-from fynautoserver.crud.releases_version_crud import get_releases_version_info_from_each_tenant, create_new_release_version_document,get_releases_version_table, check_if_already_exist_version, insert_particular_tenant_in_list, update_tenant_status_and_version
+from fynautoserver.crud.releases_version_crud import get_releases_version_info_from_each_tenant, get_custom_created_tenants, create_new_release_version_document,get_releases_version_table, check_if_already_exist_version, insert_particular_tenant_in_list, update_tenant_status_and_version
 from fastapi import HTTPException, status
 from fynautoserver.models.index import ReleaseTenantCreateModel
 from typing import Any
@@ -11,7 +11,24 @@ async def create_releases_version_service(version:str) -> ResponseModel:
         if check_duplicated_version:
             return ResponseModel(success= True, result= {"status": 0, "message": "Version already exist"}, status_code= 200)
 
-        get_all_tenants = await get_releases_version_info_from_each_tenant()
+        #take tenants from list in dashboard
+        already_created_tenants = await get_releases_version_info_from_each_tenant()
+
+        #take tenant which are added customaly by add tenant from prev release list
+        custom_created_tenants = await get_custom_created_tenants()
+
+        tenant_map = {}
+
+        # dashboard tenants
+        for tenant in already_created_tenants:
+            tenant_map[tenant.id] = tenant
+
+        # add custom tenants if not already present
+        for tenant in custom_created_tenants:
+            if tenant.id not in tenant_map:
+                tenant_map[tenant.id] = tenant
+
+        get_all_tenants = list(tenant_map.values())
         total_tenant = len(get_all_tenants)
         await create_new_release_version_document(get_all_tenants,total_tenant,version)
         return ResponseModel(success= True, result= {"status": 1, "message": "Version created successfully"}, status_code= 200)
