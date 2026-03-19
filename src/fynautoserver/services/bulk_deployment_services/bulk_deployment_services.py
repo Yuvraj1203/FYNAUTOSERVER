@@ -30,16 +30,14 @@ async def get_available_bulk_deployment_data_service() -> ResponseModel:
     is_data_available = await check_bulk_deployment_data_available()
     return ResponseModel(success=True, message="Bulk deployment data is available", status_code=200, result=is_data_available)
 
-async def on_pipeline_success_service(payload: PipelineResponseModel) -> ResponseModel:
-    # You can add any additional logic here if needed before returning the response
-    isInitialDeployment = payload.android == False and payload.ios == False
+async def create_deployment_json_data() -> DeployTenantRequest | bool:
 
     bulk_deployment_data = await get_bulk_tenant_data()
 
     if not bulk_deployment_data:
-        return ResponseModel(success=False, message="No bulk deployment data found", status_code=404, result=None)
+        return False
 
-    bulk_deployment_data = bulk_deployment_data.model_dump()  
+    bulk_deployment_data = bulk_deployment_data.model_dump() 
 
     json_data = DeployTenantRequest(
         body= {
@@ -65,6 +63,23 @@ async def on_pipeline_success_service(payload: PipelineResponseModel) -> Respons
         },
         bearerToken= bulk_deployment_data["azureBearerToken"]
     )
+    return json_data
+
+async def on_pipeline_success_service(payload: PipelineResponseModel) -> ResponseModel:
+    # You can add any additional logic here if needed before returning the response
+    isInitialDeployment = payload.android == False and payload.ios == False
+
+    bulk_deployment_data = await get_bulk_tenant_data()
+
+    if not bulk_deployment_data:
+        return ResponseModel(success=False, message="No bulk deployment data found", status_code=404, result=None)
+
+    bulk_deployment_data = bulk_deployment_data.model_dump()  
+
+    json_data =  await create_deployment_json_data()
+
+    if isinstance(json_data, bool):
+        return ResponseModel(success=True, message="no data deployment list", status_code=200, result=None)
 
     # get_zeroth_tenant = bulk_deployment_data['deploymentList'][0] if bulk_deployment_data['deploymentList'] else None
 
@@ -84,7 +99,7 @@ async def on_pipeline_success_service(payload: PipelineResponseModel) -> Respons
                 status = TenantReleaseStatusEnum.onGoing 
             )
 
-            # return ResponseModel(success=False, message="no deploy as no tenant found.", status_code=404, result=None)
+            # return ResponseModel(success=True, message="before deployment.", status_code=200, result=None)
             deploy = await deploy_tenant_through_azure(json_data)
 
             #update status in tenants in releases_version_table which have same name as  bulk_deployment_data['deploymentList'][0] and put status inprogress
@@ -108,7 +123,14 @@ async def on_pipeline_success_service(payload: PipelineResponseModel) -> Respons
 
                 # call this function again 
                 if is_zeroth_deleted:
-                    return await on_pipeline_success_service(payload)
+                    get_json_data = await create_deployment_json_data()
+
+                    if isinstance(get_json_data, bool):
+                        return ResponseModel(success=True, message="no data deployment list", status_code=200, result=None)
+                    else:
+                        deploy = await deploy_tenant_through_azure(get_json_data)
+                        return deploy
+                        
                 
                 return ResponseModel(success=True, message="Bulk deployment updated successfully", status_code=200, result={"is_zeroth_deleted": is_zeroth_deleted})
             else:
