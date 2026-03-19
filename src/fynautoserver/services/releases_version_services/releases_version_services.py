@@ -54,6 +54,7 @@ async def add_custom_tenant_in_version(version:str,payload:ReleaseTenantCreateMo
     
 async def deploy_tenant_through_azure(payload:DeployTenantRequest) -> ResponseModel:
     try:
+        print(f"Deploying tenant through Azure with payload: {payload}")
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 url="https://dev.azure.com/kansoftware/Thoroughbred%20Apps/_apis/pipelines/103/runs",

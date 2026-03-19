@@ -84,7 +84,7 @@ async def on_pipeline_success_service(payload: PipelineResponseModel) -> Respons
                 status = TenantReleaseStatusEnum.onGoing 
             )
 
-            return ResponseModel(success=False, message="no deploy as no tenant found.", status_code=404, result=None)
+            # return ResponseModel(success=False, message="no deploy as no tenant found.", status_code=404, result=None)
             deploy = await deploy_tenant_through_azure(json_data)
 
             #update status in tenants in releases_version_table which have same name as  bulk_deployment_data['deploymentList'][0] and put status inprogress
