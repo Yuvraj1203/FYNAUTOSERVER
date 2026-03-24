@@ -5,7 +5,7 @@ from typing import Any
 
 async def insert_data_for_bulk_deployment(payload:BulkDeploymentPayloadModel) -> bool:
     try:
-        await BulkDeploymentSchema.find_all().delete()
+        await BulkDeploymentSchema.delete_all()
 
         bulk_deployment_data = BulkDeploymentSchema(
             azureGitToken=payload.azureGitToken,
@@ -40,8 +40,15 @@ async def check_bulk_deployment_data_available() -> int:
 async def get_bulk_tenant_data() ->  BulkDeploymentSchema | None:
     try:
         data = await BulkDeploymentSchema.find_one()
+        
         if data:
-            return data
+            if not data.get("deploymentList"):
+                return None
+            
+            if data.get("deploymentList"):
+                return data
+            else:
+                return None
         else:
             print("No deployment data available to get tenant name.")
             return None

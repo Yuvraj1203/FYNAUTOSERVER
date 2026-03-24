@@ -1,7 +1,7 @@
 from fynautoserver.models.index import ResponseModel,BulkDeploymentPayloadModel, PipelineResponseModel, DeployTenantRequest
 from fynautoserver.crud.bulk_deployment_crud import insert_data_for_bulk_deployment, delete_bulk_deployment_data, check_bulk_deployment_data_available, get_bulk_tenant_data, delete_bulk_deployment_zeroth
 from fynautoserver.services.index import deploy_tenant_through_azure
-from fynautoserver.utils.release_status_utils.release_status_utils import calculate_release_status
+
 from fynautoserver.schemas.index import TenantReleaseStatusEnum, ReleasesVersionTableSchema, BulkDeploymentListSchema
 
 async def create_bulk_deployment_service(payload:BulkDeploymentPayloadModel) -> ResponseModel:
@@ -10,8 +10,8 @@ async def create_bulk_deployment_service(payload:BulkDeploymentPayloadModel) -> 
 
     if create_data:
         on_pipeline_success_service_response = await on_pipeline_success_service(PipelineResponseModel(
-            android=False,
-            ios=False,
+            android= False if payload.onlyTestflight else True,
+            ios=True,
         ))
         print(f"On pipeline success service response: {on_pipeline_success_service_response}")
         return ResponseModel(success=True, message="Bulk deployment created successfully", status_code=201, result=create_data)
@@ -87,7 +87,6 @@ async def update_status_version(payload: PipelineResponseModel) -> None:
                 if payload.iosVersion:
                     tenant.iosVersion = payload.iosVersion
 
-            release_ver_table.status = calculate_release_status(release_ver_table.tenants)
             await release_ver_table.save()
 
 async def on_pipeline_success_service(payload: PipelineResponseModel) -> ResponseModel:

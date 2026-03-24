@@ -1,8 +1,6 @@
 from fynautoserver.schemas.index import TenantInfoSchema,ReleasesVersionTableSchema, StatusType, TenantReleaseStatusEnum, ReleaseResponseModel
 from fynautoserver.models.index import TenantVersionProjection, ReleaseTenantsModel, ResponseModel, ReleaseTenantCreateModel, increment_version, decrement_version, TenantStatusUpdateModel
 
-from fynautoserver.utils.release_status_utils.release_status_utils import calculate_release_status
-
 from typing import List, Optional
 from fastapi import HTTPException, status
 from beanie.odm.enums import SortDirection
@@ -255,9 +253,7 @@ async def update_tenant_status_and_version(
             matchBranch=tenant_found.matchBranch
         )
         
-        # Update status with computed values
-        doc.status = calculate_release_status(doc.tenants)
-        
+        # Update status with computed values        
         await doc.save()
         
         return doc.tenants[tenant_index]

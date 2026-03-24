@@ -6,7 +6,6 @@ from fynautoserver.models.index import ReleaseTenantCreateModel
 from typing import List
 import httpx, base64
 
-from fynautoserver.utils.release_status_utils.release_status_utils import calculate_release_status
 
 async def create_releases_version_service(version:str) -> ResponseModel:
     try:
@@ -85,9 +84,6 @@ async def deploy_tenant_through_azure(payload:DeployTenantRequest) -> ResponseMo
         android_bool = android == "true"
         ios_bool = ios == "true"
 
-        print("Android:",android, android_bool)
-        print("IOS:",ios, ios_bool)
-
         release_ver_table = await ReleasesVersionTableSchema.find_one(sort=[("_id",-1)])
 
         if not release_ver_table:
@@ -109,8 +105,7 @@ async def deploy_tenant_through_azure(payload:DeployTenantRequest) -> ResponseMo
             #update tenant to in progress
             tenant.iosStatus = TenantReleaseStatusEnum.onGoing
 
-        release_ver_table.status = calculate_release_status(release_ver_table.tenants)
-
+        print("release_ver_table=>",release_ver_table)
         await release_ver_table.save()
 
         return ResponseModel(success= True, result= {"status": 1, "message": "Tenant deployed successfully"}, status_code= 200)
