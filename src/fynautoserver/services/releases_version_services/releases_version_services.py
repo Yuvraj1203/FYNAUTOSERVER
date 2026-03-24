@@ -1,9 +1,12 @@
 from fynautoserver.models.index import ResponseModel, DeployTenantRequest, TenantStatusUpdateModel
-from fynautoserver.crud.releases_version_crud import get_releases_version_info_from_each_tenant, get_custom_created_tenants, create_new_release_version_document,get_releases_version_table, check_if_already_exist_version, insert_particular_tenant_in_list, update_tenant_status_and_version
+from fynautoserver.crud.releases_version_crud import get_releases_version_info_from_each_tenant, get_custom_created_tenants, create_new_release_version_document,get_releases_version_table, check_if_already_exist_version, insert_particular_tenant_in_list, update_tenant_status_in_release_list
 from fastapi import HTTPException, status
+from fynautoserver.schemas.index import ReleasesVersionTableSchema, TenantReleaseStatusEnum, StatusType, ReleaseTenantsModel
 from fynautoserver.models.index import ReleaseTenantCreateModel
-from typing import Any
+from typing import List
 import httpx, base64
+
+from fynautoserver.utils.release_status_utils.release_status_utils import calculate_release_status
 
 async def create_releases_version_service(version:str) -> ResponseModel:
     try:
@@ -71,6 +74,47 @@ async def add_custom_tenant_in_version(version:str,payload:ReleaseTenantCreateMo
     
 async def deploy_tenant_through_azure(payload:DeployTenantRequest) -> ResponseModel:
     try:
+        #update status in release list
+        template_params = payload.body.get("templateParameters", {})
+
+        android = template_params.get("android")
+        ios = template_params.get("ios")
+
+        tenant_name = template_params.get("tenant")
+
+        android_bool = android == "true"
+        ios_bool = ios == "true"
+
+        print("Android:",android, android_bool)
+        print("IOS:",ios, ios_bool)
+
+        release_ver_table = await ReleasesVersionTableSchema.find_one(sort=[("_id",-1)])
+
+        if not release_ver_table:
+            return ResponseModel(success= False, result= {"status": 0, "message": "Release version not found"}, status_code= 404)
+        
+        tenant = next(
+            (t for t in release_ver_table.tenants if t.name == tenant_name),
+            None
+        )
+
+        if not tenant:
+            return ResponseModel(success= False, result= {"status": 0, "message": "Tenant not found"}, status_code= 404)
+
+        if android_bool:
+            #update tenant to in progress
+            tenant.androidStatus = TenantReleaseStatusEnum.onGoing
+
+        if ios_bool:
+            #update tenant to in progress
+            tenant.iosStatus = TenantReleaseStatusEnum.onGoing
+
+        release_ver_table.status = calculate_release_status(release_ver_table.tenants)
+
+        await release_ver_table.save()
+
+        return ResponseModel(success= True, result= {"status": 1, "message": "Tenant deployed successfully"}, status_code= 200)
+
         print(f"Deploying tenant through Azure with payload: {payload}")
         async with httpx.AsyncClient() as client:
             response = await client.post(
@@ -119,60 +163,17 @@ async def update_tenant_status_service(
     version: str,
     payload: TenantStatusUpdateModel
 ) -> ResponseModel:
-    """
-    Service function to update tenant status and version.
     
-    This service:
-    1. Searches for the tenant by name in the specified version
-    2. Updates the status of that tenant
-    3. Based on status transition:
-       - pending(0)/failed(3) -> inProgress(1): increment version
-       - inProgress(1) -> failed(3): decrement version
-    4. If android=true: update android version
-    5. If ios=true: update ios version
-    """
-    try:
-        # Validate status value
-        if payload.status not in [0, 1, 2, 3]:
-            return ResponseModel(
-                success=False,
-                result={"message": "Invalid status. Must be 0 (pending), 1 (onGoing), 2 (published), or 3 (failed)"},
-                status_code=400
-            )
-        
-        # Call CRUD function to update tenant status and version
-        updated_tenant = await update_tenant_status_and_version(
-            version=version,
-            tenant_name=payload.name,
-            new_status=payload.status,
-            increment_android=payload.android,
-            increment_ios=payload.ios
-        )
-        
-        if not updated_tenant:
-            return ResponseModel(
-                success=False,
-                result={"message": "Tenant not found"},
-                status_code=404
-            )
-        
-        return ResponseModel(
-            success=True,
-            result={
-                "message": "Tenant status updated successfully",
-                "tenant": updated_tenant.model_dump()
-            },
-            status_code=200
-        )
-        
-    except HTTPException as e:
-        return ResponseModel(
-            success=False,
-            result={"message": e.detail},
-            status_code=e.status_code
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update tenant status service: {str(e)}"
-        )
+    #check if version available
+    isValidReleaseVersion = await check_if_already_exist_version(version)
+
+    if isValidReleaseVersion == False:
+        return ResponseModel(success= False, result= {"status": 0, "message": "Version not found"},status_code=404)
+    
+    #check status is valid
+    if payload.status < 0 or payload.status > 4:
+        return ResponseModel(success= False, result= {"status": 0, "message": "Invalid status"},status_code=404)
+    
+    #check if the name is in the release version list and update status
+    return await update_tenant_status_in_release_list(version,payload)
+    

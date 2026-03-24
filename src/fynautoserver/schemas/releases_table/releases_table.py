@@ -1,8 +1,7 @@
 from beanie import Document
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 from enum import IntEnum
 from typing import List
-from fynautoserver.models.index import ReleaseTenantsModel
 
 class TenantReleaseStatusEnum(IntEnum):
     pending = 0
@@ -15,6 +14,33 @@ class StatusType(BaseModel):
     onGoing: int
     pending: int
     failed: int
+
+
+class ReleaseTenantsModel(BaseModel):
+    id: str
+    name: str
+    status: int
+    androidStatus: int = 0
+    iosStatus: int = 0
+    androidVersion: str
+    iosVersion: str
+    matchBranch: str
+
+    @model_validator(mode="after")
+    def update_status(self) -> "ReleaseTenantsModel":
+        # If both statuses are equal
+        if self.androidStatus == self.iosStatus:
+            self.status = self.androidStatus
+        else:
+            # custom rule when different
+            if TenantReleaseStatusEnum.failed in [self.androidStatus, self.iosStatus]:
+                self.status = TenantReleaseStatusEnum.failed
+            elif TenantReleaseStatusEnum.onGoing in [self.androidStatus, self.iosStatus]:
+                self.status = TenantReleaseStatusEnum.onGoing
+            else:
+                self.status = TenantReleaseStatusEnum.pending
+
+        return self
 
 class ReleaseResponseModel(BaseModel):
     id: str

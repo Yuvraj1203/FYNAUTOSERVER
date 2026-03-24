@@ -6,6 +6,8 @@ class ReleaseTenantsModel(BaseModel):
     id: str
     name: str
     status: int
+    androidStatus: int = 0
+    iosStatus: int = 0
     androidVersion: str
     iosVersion: str
     matchBranch: str

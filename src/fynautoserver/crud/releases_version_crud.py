@@ -1,5 +1,8 @@
 from fynautoserver.schemas.index import TenantInfoSchema,ReleasesVersionTableSchema, StatusType, TenantReleaseStatusEnum, ReleaseResponseModel
-from fynautoserver.models.index import TenantVersionProjection, ReleaseTenantsModel, ResponseModel, ReleaseTenantCreateModel, TenantStatusUpdateModel, increment_version, decrement_version
+from fynautoserver.models.index import TenantVersionProjection, ReleaseTenantsModel, ResponseModel, ReleaseTenantCreateModel, increment_version, decrement_version, TenantStatusUpdateModel
+
+from fynautoserver.utils.release_status_utils.release_status_utils import calculate_release_status
+
 from typing import List, Optional
 from fastapi import HTTPException, status
 from beanie.odm.enums import SortDirection
@@ -28,6 +31,8 @@ async def get_releases_version_info_from_each_tenant() -> List[ReleaseTenantsMod
                 id=str(t.id),
                 name=t.appName,
                 status=TenantReleaseStatusEnum.pending,
+                androidStatus=TenantReleaseStatusEnum.pending,
+                iosStatus=TenantReleaseStatusEnum.pending,
                 androidVersion=t.androidVersionName,
                 iosVersion=t.iosVersionName,
                 matchBranch=t.matchBranch
@@ -55,6 +60,8 @@ async def get_custom_created_tenants() -> List[ReleaseTenantsModel]:
                         id=tenant.id,
                         name=tenant.name,
                         status=TenantReleaseStatusEnum.pending,
+                        androidStatus=TenantReleaseStatusEnum.pending,
+                        iosStatus=TenantReleaseStatusEnum.pending,
                         androidVersion=tenant.androidVersion,
                         iosVersion=tenant.iosVersion,
                         matchBranch=tenant.matchBranch
@@ -241,24 +248,15 @@ async def update_tenant_status_and_version(
             id=tenant_found.id,
             name=tenant_found.name,
             status=new_status,
+            androidStatus=tenant_found.androidStatus,
+            iosStatus=tenant_found.iosStatus,
             androidVersion=updated_android_version,
             iosVersion=updated_ios_version,
             matchBranch=tenant_found.matchBranch
         )
         
-        # Calculate status counts from tenants list (single source of truth)
-        pending_count = sum(1 for t in doc.tenants if t.status == 0)
-        on_going_count = sum(1 for t in doc.tenants if t.status == 1)
-        published_count = sum(1 for t in doc.tenants if t.status == 2)
-        failed_count = sum(1 for t in doc.tenants if t.status == 3)
-        
         # Update status with computed values
-        doc.status = StatusType(
-            pending=pending_count,
-            onGoing=on_going_count,
-            published=published_count,
-            failed=failed_count
-        )
+        doc.status = calculate_release_status(doc.tenants)
         
         await doc.save()
         
@@ -272,3 +270,20 @@ async def update_tenant_status_and_version(
             detail=f"Failed to update tenant status: {str(e)}"
         )
     
+async def update_tenant_status_in_release_list(version: str, payload: TenantStatusUpdateModel) -> ResponseModel:
+
+    releaseVersionList = await ReleasesVersionTableSchema.find_one(ReleasesVersionTableSchema.version == version)
+
+    if not releaseVersionList:
+        return ResponseModel(success= False, result= {"status": 0, "message": "Version not found"},status_code=404)
+
+    tenants = releaseVersionList.tenants
+
+    for tenant in tenants:
+        if tenant.name == payload.name:
+            tenant.status = payload.status
+            break
+
+    await releaseVersionList.save()
+
+    return ResponseModel(success= True, result= {"status": 1, "message": "Tenant status updated successfully"}, status_code= 200)

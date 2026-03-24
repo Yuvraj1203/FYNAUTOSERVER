@@ -1,8 +1,8 @@
 from fynautoserver.models.index import ResponseModel,BulkDeploymentPayloadModel, PipelineResponseModel, DeployTenantRequest
-from fynautoserver.crud.bulk_deployment_crud import insert_data_for_bulk_deployment, delete_bulk_deployment_data, check_bulk_deployment_data_available, get_bulk_tenant_data, update_release_tenant_version_and_status_service, delete_bulk_deployment_zeroth
+from fynautoserver.crud.bulk_deployment_crud import insert_data_for_bulk_deployment, delete_bulk_deployment_data, check_bulk_deployment_data_available, get_bulk_tenant_data, delete_bulk_deployment_zeroth
 from fynautoserver.services.index import deploy_tenant_through_azure
-from fynautoserver.schemas.index import TenantReleaseStatusEnum
-from fynautoserver.schemas.index import BulkDeploymentListSchema
+from fynautoserver.utils.release_status_utils.release_status_utils import calculate_release_status
+from fynautoserver.schemas.index import TenantReleaseStatusEnum, ReleasesVersionTableSchema, BulkDeploymentListSchema
 
 async def create_bulk_deployment_service(payload:BulkDeploymentPayloadModel) -> ResponseModel:
     create_data = await insert_data_for_bulk_deployment(payload)
@@ -65,16 +65,59 @@ async def create_deployment_json_data() -> DeployTenantRequest | bool:
     )
     return json_data
 
+async def update_status_version(payload: PipelineResponseModel) -> None:
+    release_ver_table = await ReleasesVersionTableSchema.find_one(sort=[("_id",-1)])
+
+    if release_ver_table:
+        tenant = next(
+            (t for t in release_ver_table.tenants if t.name == payload.tenantName),
+            None
+        )
+
+        if tenant:
+            if payload.android:
+                #update status to published and version too
+                tenant.androidStatus = TenantReleaseStatusEnum.published
+                if payload.androidVersion:
+                    tenant.androidVersion = payload.androidVersion
+
+            if payload.ios:
+                #update to published and version too
+                tenant.iosStatus = TenantReleaseStatusEnum.published
+                if payload.iosVersion:
+                    tenant.iosVersion = payload.iosVersion
+
+            release_ver_table.status = calculate_release_status(release_ver_table.tenants)
+            await release_ver_table.save()
+
 async def on_pipeline_success_service(payload: PipelineResponseModel) -> ResponseModel:
     # You can add any additional logic here if needed before returning the response
-    isInitialDeployment = payload.android == False and payload.ios == False
+    isInitialDeployment = payload.tenantName == None
 
     bulk_deployment_data = await get_bulk_tenant_data()
 
+    # CASE 1 → no document in DB
     if not bulk_deployment_data:
-        return ResponseModel(success=False, message="No bulk deployment data found", status_code=404, result=None)
+        await update_status_version(payload)
+        return ResponseModel(
+            success=True,
+            message="No bulk deployment data found",
+            status_code=200,
+            result=None
+        )
 
-    bulk_deployment_data = bulk_deployment_data.model_dump()  
+    bulk_deployment_data = bulk_deployment_data.model_dump()
+
+    # CASE 2 → deploymentList empty
+    if not bulk_deployment_data.get("deploymentList"):
+        await update_status_version(payload)
+        await delete_bulk_deployment_data()
+        return ResponseModel(
+            success=True,
+            message="Deployment list empty",
+            status_code=200,
+            result=None
+        )
 
     json_data =  await create_deployment_json_data()
 
@@ -87,17 +130,13 @@ async def on_pipeline_success_service(payload: PipelineResponseModel) -> Respons
     BulkDeploymentListSchema(**bulk_deployment_data["deploymentList"][0])
     if bulk_deployment_data["deploymentList"]
     else None
-)
+    )
 
     if isInitialDeployment:
         # check tenantName make it inprogress and return
 
         if get_zeroth_tenant:
             print(f"Zeroth tenant from list: {get_zeroth_tenant}")
-            update_release_list = await update_release_tenant_version_and_status_service(
-                tenant_info= get_zeroth_tenant,
-                status = TenantReleaseStatusEnum.onGoing 
-            )
 
             # return ResponseModel(success=True, message="before deployment.", status_code=200, result=None)
             deploy = await deploy_tenant_through_azure(json_data)
@@ -108,32 +147,24 @@ async def on_pipeline_success_service(payload: PipelineResponseModel) -> Respons
         else:
             return ResponseModel(success=False, message="no deploy as no tenant found.", status_code=404, result=None)
     else:
+        await update_status_version(payload)
+        
         # update version in tenants in releases_version_table which have same name as  bulk_deployment_data['deploymentList'][0] and put version from payload android version and iosVersion
         if get_zeroth_tenant:
-            update_release_list = await update_release_tenant_version_and_status_service(
-                tenant_info= get_zeroth_tenant,
-                iosVersion= payload.iosVersion,
-                androidVersion= payload.androidVersion,
-                status = TenantReleaseStatusEnum.published if payload.android == True and payload.ios == True else TenantReleaseStatusEnum.failed
-            )
-
             # delete zeroth element from deploymentLIst in bulk_deployment
-            if update_release_list:
-                is_zeroth_deleted = await delete_bulk_deployment_zeroth() 
+            is_zeroth_deleted = await delete_bulk_deployment_zeroth() 
+            # call this function again 
+            if is_zeroth_deleted:
+                get_json_data = await create_deployment_json_data()
 
-                # call this function again 
-                if is_zeroth_deleted:
-                    get_json_data = await create_deployment_json_data()
-
-                    if isinstance(get_json_data, bool):
-                        return ResponseModel(success=True, message="no data deployment list", status_code=200, result=None)
-                    else:
-                        deploy = await deploy_tenant_through_azure(get_json_data)
-                        return deploy
-                        
+                if isinstance(get_json_data, bool):
+                    return ResponseModel(success=True, message="no data deployment list", status_code=200, result=None)
                 
-                return ResponseModel(success=True, message="Bulk deployment updated successfully", status_code=200, result={"is_zeroth_deleted": is_zeroth_deleted})
-            else:
-                return ResponseModel(success=False, message="no deploy as no tenant found.", status_code=404, result=None)
+
+                deploy = await deploy_tenant_through_azure(get_json_data)
+                return deploy
+                    
+            
+            return ResponseModel(success=True, message="Bulk deployment updated successfully", status_code=200, result={"is_zeroth_deleted": is_zeroth_deleted})
         else:
             return ResponseModel(success=False, message="no deploy as no tenant found.", status_code=404, result=None)

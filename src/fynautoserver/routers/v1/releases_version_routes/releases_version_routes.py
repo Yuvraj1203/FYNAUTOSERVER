@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Path
 from fynautoserver.models.index import ResponseModel,ReleaseTenantCreateModel, DeployTenantRequest, TenantStatusUpdateModel
 from pydantic import BaseModel
 from fynautoserver.services.index import create_releases_version_service, get_releases_version_service, add_custom_tenant_in_version, deploy_tenant_through_azure,check_progress_of_deployment, update_tenant_status_service
@@ -35,18 +35,6 @@ async def get_progress(token:str) -> ResponseModel:
     return check_progress
 
 @releases_version_router.put("/updateTenantStatus", response_model=ResponseModel)
-async def update_tenant_status(version: str, payload: TenantStatusUpdateModel) -> ResponseModel:
-    """
-    Update tenant status and version.
-    
-    This endpoint:
-    1. Searches for tenant by name in the specified version
-    2. Updates the status of that tenant
-    3. Based on status transition:
-       - pending(0)/failed(3) -> inProgress(1): increment version
-       - inProgress(1) -> failed(3): decrement version
-    4. If android=true: update android version
-    5. If ios=true: update ios version
-    """
+async def update_tenant_status(version: str = Path(...,description='release version',example='1.0.0'), payload: TenantStatusUpdateModel = Path(...,description="name and status(0,1,2,3)")) -> ResponseModel:
     update_status = await update_tenant_status_service(version, payload)
     return update_status

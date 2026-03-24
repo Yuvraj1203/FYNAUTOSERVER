@@ -1,17 +1,12 @@
 from pydantic import BaseModel
 from typing import List
+from fynautoserver.schemas.index import ReleaseTenantsModel
 
 class ReleaseTenantCreateModel(BaseModel):
     name: str
-    status: int
-    androidVersion: str
-    iosVersion: str
-    matchBranch: str
-
-class ReleaseTenantsModel(BaseModel):
-    id: str
-    name: str
-    status: int
+    status: int = 0
+    androidStatus: int = 0
+    iosStatus: int = 0
     androidVersion: str
     iosVersion: str
     matchBranch: str
