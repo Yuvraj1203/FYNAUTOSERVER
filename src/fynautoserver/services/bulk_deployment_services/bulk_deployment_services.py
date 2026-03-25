@@ -2,7 +2,7 @@ from fynautoserver.models.index import ResponseModel,BulkDeploymentPayloadModel,
 from fynautoserver.crud.bulk_deployment_crud import insert_data_for_bulk_deployment, delete_bulk_deployment_data, check_bulk_deployment_data_available, get_bulk_tenant_data, delete_bulk_deployment_zeroth
 from fynautoserver.services.index import deploy_tenant_through_azure
 
-from fynautoserver.schemas.index import TenantReleaseStatusEnum, ReleasesVersionTableSchema, BulkDeploymentListSchema
+from fynautoserver.schemas.index import TenantReleaseStatusEnum, ReleasesVersionTableSchema, BulkDeploymentListSchema,PipelinePayload
 
 async def create_bulk_deployment_service(payload:BulkDeploymentPayloadModel) -> ResponseModel:
     create_data = await insert_data_for_bulk_deployment(payload)
@@ -12,6 +12,8 @@ async def create_bulk_deployment_service(payload:BulkDeploymentPayloadModel) -> 
         on_pipeline_success_service_response = await on_pipeline_success_service(PipelineResponseModel(
             android= False if payload.onlyTestflight else True,
             ios=True,
+            tenantName=payload.deploymentList[0].tenantName,
+            initialRun=True
         ))
         print(f"On pipeline success service response: {on_pipeline_success_service_response}")
         return ResponseModel(success=True, message="Bulk deployment created successfully", status_code=201, result=create_data)
@@ -65,7 +67,7 @@ async def create_deployment_json_data() -> DeployTenantRequest | bool:
     )
     return json_data
 
-async def update_status_version(payload: PipelineResponseModel) -> None:
+async def update_status_version(payload: PipelineResponseModel,iosOnly:bool) -> None:
     release_ver_table = await ReleasesVersionTableSchema.find_one(sort=[("_id",-1)])
 
     if release_ver_table:
@@ -80,24 +82,73 @@ async def update_status_version(payload: PipelineResponseModel) -> None:
                 tenant.androidStatus = TenantReleaseStatusEnum.published
                 if payload.androidVersion:
                     tenant.androidVersion = payload.androidVersion
+            else:
+                if not iosOnly:
+                    #update status to failed
+                    tenant.androidStatus = TenantReleaseStatusEnum.failed
 
             if payload.ios:
                 #update to published and version too
                 tenant.iosStatus = TenantReleaseStatusEnum.published
                 if payload.iosVersion:
                     tenant.iosVersion = payload.iosVersion
-
+            else:
+                #update status to failed
+                tenant.iosStatus = TenantReleaseStatusEnum.failed
             await release_ver_table.save()
 
 async def on_pipeline_success_service(payload: PipelineResponseModel) -> ResponseModel:
-    # You can add any additional logic here if needed before returning the response
-    isInitialDeployment = payload.tenantName == None
+    
+    #for single deployment use payload and delete that after
+    pipeline_payload = await PipelinePayload.find_one()
+
+    if pipeline_payload and pipeline_payload.tenantName == payload.tenantName:
+
+        if pipeline_payload:
+            release_ver_table = await ReleasesVersionTableSchema.find_one(sort=[("_id",-1)])
+
+            tenant = None
+            if release_ver_table:
+                tenant = next(
+                    (t for t in release_ver_table.tenants if t.name == payload.tenantName),
+                    None
+                )
+            
+            if release_ver_table and tenant:
+                if pipeline_payload.forIos:
+                    if payload.ios:
+                        #update status to published and version too
+                        tenant.iosStatus = TenantReleaseStatusEnum.published
+                        if payload.iosVersion:
+                            tenant.iosVersion = payload.iosVersion
+                    else:
+                        #update status to failed
+                        tenant.iosStatus = TenantReleaseStatusEnum.failed
+                
+                if pipeline_payload.forAndroid:
+                    if payload.android:
+                        #update status to published and version too
+                        tenant.androidStatus = TenantReleaseStatusEnum.published
+                        if payload.androidVersion:
+                            tenant.androidVersion = payload.androidVersion
+                    else:
+                        #update status to failed
+                        tenant.androidStatus = TenantReleaseStatusEnum.failed
+                
+                await PipelinePayload.delete_all()
+                await release_ver_table.save()
+
+                return ResponseModel(success=True, message="Pipeline success", status_code=200, result=None)
+
+
+    # for multiple deployment
+    isInitialDeployment = payload.initialRun
 
     bulk_deployment_data = await get_bulk_tenant_data()
 
     # CASE 1 → no document in DB
     if not bulk_deployment_data:
-        await update_status_version(payload)
+        # await update_status_version(payload)
         return ResponseModel(
             success=True,
             message="No bulk deployment data found",
@@ -109,7 +160,7 @@ async def on_pipeline_success_service(payload: PipelineResponseModel) -> Respons
 
     # CASE 2 → deploymentList empty
     if not bulk_deployment_data.get("deploymentList"):
-        await update_status_version(payload)
+        # await update_status_version(payload)
         await delete_bulk_deployment_data()
         return ResponseModel(
             success=True,
@@ -131,8 +182,22 @@ async def on_pipeline_success_service(payload: PipelineResponseModel) -> Respons
     else None
     )
 
+
+    # CASE 3 → dont let other tenant call the api again
+    if get_zeroth_tenant is None:
+        return ResponseModel(
+            success=True,
+            message="No tenant to deploy",  
+            status_code=200,
+            result=None
+        )
+    
+    if get_zeroth_tenant.tenantName != payload.tenantName:
+        return ResponseModel(success=True, message="not in the list", status_code=200, result=None)
+
     if isInitialDeployment:
         # check tenantName make it inprogress and return
+        print('hi')
 
         if get_zeroth_tenant:
             print(f"Zeroth tenant from list: {get_zeroth_tenant}")
@@ -146,7 +211,9 @@ async def on_pipeline_success_service(payload: PipelineResponseModel) -> Respons
         else:
             return ResponseModel(success=False, message="no deploy as no tenant found.", status_code=404, result=None)
     else:
-        await update_status_version(payload)
+        isIosOnly = True if bulk_deployment_data.get("onlyTestflight") else False
+        
+        await update_status_version(payload,isIosOnly)
         
         # update version in tenants in releases_version_table which have same name as  bulk_deployment_data['deploymentList'][0] and put version from payload android version and iosVersion
         if get_zeroth_tenant:

@@ -19,4 +19,5 @@ class PipelineResponseModel(BaseModel):
     ios: bool = False
     androidVersion: Optional[str] = None
     iosVersion: Optional[str] = None
+    initialRun: Optional[bool] = False
 

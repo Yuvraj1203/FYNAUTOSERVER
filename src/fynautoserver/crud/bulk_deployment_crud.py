@@ -41,17 +41,15 @@ async def get_bulk_tenant_data() ->  BulkDeploymentSchema | None:
     try:
         data = await BulkDeploymentSchema.find_one()
         
-        if data:
-            if not data.get("deploymentList"):
-                return None
-            
-            if data.get("deploymentList"):
-                return data
-            else:
-                return None
-        else:
+        if not data:
             print("No deployment data available to get tenant name.")
             return None
+
+        if not data.deploymentList:
+            return None
+
+        return data
+    
     except Exception as e:
         print(f"Error getting zeroth tenant from list: {e}") 
         return None

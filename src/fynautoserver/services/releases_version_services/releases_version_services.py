@@ -1,7 +1,7 @@
 from fynautoserver.models.index import ResponseModel, DeployTenantRequest, TenantStatusUpdateModel
 from fynautoserver.crud.releases_version_crud import get_releases_version_info_from_each_tenant, get_custom_created_tenants, create_new_release_version_document,get_releases_version_table, check_if_already_exist_version, insert_particular_tenant_in_list, update_tenant_status_in_release_list
 from fastapi import HTTPException, status
-from fynautoserver.schemas.index import ReleasesVersionTableSchema, TenantReleaseStatusEnum, StatusType, ReleaseTenantsModel
+from fynautoserver.schemas.index import ReleasesVersionTableSchema, TenantReleaseStatusEnum, StatusType, PipelinePayload
 from fynautoserver.models.index import ReleaseTenantCreateModel
 from typing import List
 import httpx, base64
@@ -70,7 +70,7 @@ async def add_custom_tenant_in_version(version:str,payload:ReleaseTenantCreateMo
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to add_custom_tenant_in_version"
         )
-    
+
 async def deploy_tenant_through_azure(payload:DeployTenantRequest) -> ResponseModel:
     try:
         #update status in release list
@@ -172,3 +172,26 @@ async def update_tenant_status_service(
     #check if the name is in the release version list and update status
     return await update_tenant_status_in_release_list(version,payload)
     
+
+
+async def deploy_single_tenant_service(payload:DeployTenantRequest) -> ResponseModel:
+
+    #save payload
+    template_params = payload.body.get("templateParameters", {})
+
+    android = template_params.get("android")
+    ios = template_params.get("ios")
+
+    tenant_name = template_params.get("tenant")
+
+    android_bool = android == "true"
+    ios_bool = ios == "true"
+
+    await PipelinePayload(
+        tenantName=tenant_name,
+        forAndroid=android_bool,
+        forIos=ios_bool
+    ).save()
+
+    deploy = await deploy_tenant_through_azure(payload)
+    return deploy
