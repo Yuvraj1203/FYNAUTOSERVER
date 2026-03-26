@@ -108,7 +108,7 @@ async def deploy_tenant_through_azure(payload:DeployTenantRequest) -> ResponseMo
         print("release_ver_table=>",release_ver_table)
         await release_ver_table.save()
 
-        return ResponseModel(success= True, result= {"status": 1, "message": "Tenant deployed successfully"}, status_code= 200)
+        # return ResponseModel(success= True, result= {"status": 1, "message": "Tenant deployed successfully"}, status_code= 200)
 
         print(f"Deploying tenant through Azure with payload: {payload}")
         async with httpx.AsyncClient() as client:
