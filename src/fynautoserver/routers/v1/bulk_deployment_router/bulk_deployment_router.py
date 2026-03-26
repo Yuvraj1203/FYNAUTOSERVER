@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from fynautoserver.models.index import ResponseModel, BulkDeploymentPayloadModel, PipelineResponseModel
 from fynautoserver.services.index import create_bulk_deployment_service,delete_bulk_deployment_service, get_available_bulk_deployment_data_service, on_pipeline_success_service
+from fynautoserver.websocket.manager import manager
 
 bulk_deployment_router = APIRouter(
     prefix="/bulkDeployment",
@@ -25,4 +26,6 @@ async def check_bulk_deployment_data_available() -> ResponseModel:
 @bulk_deployment_router.post("/OnPipelineSuccess",response_model=ResponseModel)
 async def on_pipeline_success(payload: PipelineResponseModel) -> ResponseModel:
     on_pipeline_success_response = await on_pipeline_success_service(payload)
+
+    await manager.broadcast("tennat_deployed")
     return on_pipeline_success_response

@@ -1,14 +1,15 @@
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fynautoserver.routers.index import router
 from fynautoserver.database import init_db
+from typing import Any
+from fynautoserver.websocket.manager import manager
 
 app = FastAPI()
 
 #Router
 app.include_router(router, prefix='/api')
-
 
 # Add CORS middleware **here**
 app.add_middleware(
@@ -22,7 +23,18 @@ app.add_middleware(
 #db connection eshtablishing
 app.add_event_handler("startup",init_db)
 
-def main():
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket) -> Any:
+    await manager.connect(websocket)
+
+    try:
+        while True:
+            await websocket.receive_text()
+    except:
+        manager.disconnect(websocket)
+
+def main() -> Any:
     uvicorn.run("fynautoserver.main:app", host="0.0.0.0", port=8000, reload=True)
  
 # For standalone runs (optional)

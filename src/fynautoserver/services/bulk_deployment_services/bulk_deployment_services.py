@@ -197,7 +197,6 @@ async def on_pipeline_success_service(payload: PipelineResponseModel) -> Respons
 
     if isInitialDeployment:
         # check tenantName make it inprogress and return
-        print('hi')
 
         if get_zeroth_tenant:
             print(f"Zeroth tenant from list: {get_zeroth_tenant}")
